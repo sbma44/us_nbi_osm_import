@@ -1,0 +1,4 @@
+jellyfish==0.2.1
+progressbar3000==2.3
+psycopg2==2.5.4
+us==0.9.0
