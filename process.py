@@ -101,33 +101,31 @@ def main():
                     # find weight limit
                     operating_rating = row[72]
 
-                    # extract coordinates
-                    lat_row = row[19]
-                    lat = float(lat_row[0:2]) + (float(lat_row[2:4]) / 60.0) + (float(lat_row[4:8]) / 360000.0)
-                    lon_row = row[20]
-                    
-                    # correct miscoded longitudes -- this is hardcoded for the US
-                    if lon_row[0] == '0':
-                        lon_row = list(lon_row)
-                        lon_row.pop(0)
-                        lon_row.append('0')    
-                        lon_row = ''.join(lon_row)
-                    lon = -1 * (float(lon_row[0:2]) + (float(lon_row[2:4]) / 60.0) + (float(lon_row[4:8]) / 360000.0))            
+                    try:
+                        # extract coordinates
+                        lat_row = row[19]
+                        lat = float(lat_row[0:2]) + (float(lat_row[2:4]) / 60.0) + (float(lat_row[4:8]) / 360000.0)
+                        lon_row = row[20]
+                        
+                        # correct miscoded longitudes -- this is hardcoded for the US
+                        if lon_row[0] == '0':
+                            lon_row = list(lon_row)
+                            lon_row.pop(0)
+                            lon_row.append('0')    
+                            lon_row = ''.join(lon_row)
+                        lon = -1 * (float(lon_row[0:2]) + (float(lon_row[2:4]) / 60.0) + (float(lon_row[4:8]) / 360000.0))            
 
-                    # are least-significant digits non-zero? if so, it's high precision
-                    high_precision = (lon_row[6:8] != '00') and (lat_row[6:8] != '00')
+                         # are least-significant digits non-zero? if so, it's high precision
+                        high_precision = (lon_row[6:8] != '00') and (lat_row[6:8] != '00')
 
-                    # @TODO: horizontal clearances
+                        # @TODO: horizontal clearances
+                       
+                    except:
+                        continue
 
-                    # find bridge & apply weight limit, if it carries a way
-                    if record_type=='1':
-                        pass
+                   
 
-                    # find ways under bridge & apply height limit if it has ways under it
-                    if record_type!='1':
-                        pass
-
-                    # by default, query within 90 meters
+                    # by default, query within 90 meters for bridges
                     distance = 90
                     if high_precision:
                         distance = 10
@@ -147,11 +145,16 @@ def main():
                     """
                     cur.execute(sql, (lon, lat, distance))
                     
+                    # @TODO: save geometry to make it easy to check matches
                     while True:
                         result = cur.fetchone()
                         if result is None:
                             break
                         writer.writerow([state.abbr, structure_number, result[0]])
+
+
+                    # @TODO: save clearance, query for ways under bridge
+                    # @TODO: save weight limit for application to bridge
 
                     i = i + 1
 
