@@ -58,23 +58,22 @@ nbi:
 	rm -rf nbi
 	mkdir nbi
 	# @TODO: download from mapbox s3
-	curl "http://www.fhwa.dot.gov/bridge/nbi/2013allstatesallrecsdel.zip" > nbi.zip
+	curl "http://www.fhwa.dot.gov/bridge/nbi/2013allstatesallrecsdel.zip" > nbi/nbi.zip
 	cd nbi && unzip nbi.zip	&& rm nbi.zip
 	cat nbi/allstatesallrecs13del.txt | iconv -f utf-8 -t utf-8 -c > nbi/nbi.csv
 	rm nbi/allstatesallrecs13del.txt
-	python segment.py nbi/nbi.csv && rm nbi/nbi.csv
-	touch nbi.done
+	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python segment.py nbi/nbi.csv && rm nbi/nbi.csv"
 
-process nbi.done us_osm.done:
-	python process.py
+process:
+	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python process.py"
 
 install:
-	sudo apt-get install -y postgis osm2pgsql python3 setuptools
-	sudo easy_install pip
+	sudo apt-get install -y postgis osm2pgsql python3 python-pip postgresql-server-dev-all python3-dev 
 	sudo pip install virtualenvwrapper
+	bash -c "virtualenv -p `which python3` .nhtsa_nbi_osm_import && source .nhtsa_nbi_osm_import/bin/activate && pip install -r requirements.txt"
 
 clean:
-	rm nbi.done
-	rm us_osm.done
+	rm -rf nbi
+	rm -rf us_osm
 
 
