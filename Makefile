@@ -71,6 +71,7 @@ install:
 	sudo apt-get install -y postgis osm2pgsql python3 python-pip postgresql-server-dev-all python3-dev 
 	sudo pip install virtualenvwrapper
 	bash -c "virtualenv -p `which python3` .nhtsa_nbi_osm_import && source .nhtsa_nbi_osm_import/bin/activate && pip install -r requirements.txt"
+	mkdir build
 
 clean:
 	rm -rf nbi
