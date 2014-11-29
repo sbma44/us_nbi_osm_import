@@ -52,13 +52,29 @@ osm:
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/west-virginia-latest.osm.pbf" -O
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/wisconsin-latest.osm.pbf" -O
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/wyoming-latest.osm.pbf" -O
+	touch us_osm.done
 
 nbi:
 	rm -rf nbi
 	mkdir nbi
 	# @TODO: download from mapbox s3
-	curl "http://www.fhwa.dot.gov/bridge/nbi/ascii.cfm?year=2013" > nbi.zip
-	cd nbi && unzip nbi.zip	
+	curl "http://www.fhwa.dot.gov/bridge/nbi/2013allstatesallrecsdel.zip" > nbi.zip
+	cd nbi && unzip nbi.zip	&& rm nbi.zip
 	cat nbi/allstatesallrecs13del.txt | iconv -f utf-8 -t utf-8 -c > nbi/nbi.csv
 	rm nbi/allstatesallrecs13del.txt
 	python segment.py nbi/nbi.csv && rm nbi/nbi.csv
+	touch nbi.done
+
+process nbi.done us_osm.done:
+	python process.py
+
+install:
+	sudo apt-get install -y postgis osm2pgsql python3 setuptools
+	sudo easy_install pip
+	sudo pip install virtualenvwrapper
+
+clean:
+	rm nbi.done
+	rm us_osm.done
+
+
