@@ -3,6 +3,7 @@ import csv
 import os
 import subprocess
 import tempfile
+import json
 import webbrowser
 import us
 import psycopg2, psycopg2.extras
@@ -23,6 +24,7 @@ def createdb():
     
     sql = """
     CREATE TABLE nbi_bridges (
+        nbi_bridge_id SERIAL PRIMARY KEY,
         state text,
         over_clearance real,
         under_clearance real,
@@ -31,13 +33,21 @@ def createdb():
         structure_number text,
         record_type text,
         toll_status text,
-        location geometry(point, 4326),
-        osm_way_id real
+        location geometry(point, 4326)
     );
 
     CREATE INDEX nbi_bridges_structure_number_index ON nbi_bridges(structure_number) WITH (fillfactor=100);
     CREATE INDEX nbi_bridges_state_index ON nbi_bridges(state) WITH (fillfactor=100);
     CREATE INDEX nbi_bridges_location_index ON nbi_bridges USING gist (location) WITH (fillfactor=100);    
+
+    CREATE TABLE nbi_bridge_osm_ways (
+        nbi_bridge_id integer,
+        osm_id integer,
+        distance real
+    );
+
+    CREATE INDEX nbi_bridge_osm_ways_nbi_bridge_id ON nbi_bridge_osm_ways(nbi_bridge_id);
+    CREATE INDEX nbi_bridge_osm_ways_osm_id ON nbi_bridge_osm_ways(osm_id);
     """
     cur.execute(sql)
 
@@ -69,13 +79,15 @@ def file_length(fname):
     return i + 1
 
 def load_nbi(state):
+    print('# loading NBI for {}'.format(state.name))
+
     conn = psycopg2.connect('dbname={}'.format(DBNAME))
     psycopg2.extras.register_hstore(conn)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     state_filename = 'nbi/nbi_{state_abbr}.csv'.format(state_abbr=state.abbr)
     
-    pbar = ProgressBar(widgets=['{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=file_length(state_filename)).start()                    
+    pbar = ProgressBar(widgets=['NBI load/{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=file_length(state_filename)).start()                    
 
     with open(state_filename, 'r') as csvfile:
         i = 0
@@ -201,6 +213,16 @@ def match_ways_to_bridges(state):
     psycopg2.extras.register_hstore(conn)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur2 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur3 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    matched_bridges = 0
+    processed_records = 0
+
+    sql = "SELECT COUNT(*) AS total FROM planet_osm_roads WHERE bridge='yes'"
+    cur.execute(sql)
+    result = cur.fetchone()
+
+    pbar = ProgressBar(widgets=['matching/{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
 
     sql = """
     SELECT osm_id, ST_AsText(way) AS wkt FROM planet_osm_roads WHERE bridge='yes'
@@ -211,10 +233,11 @@ def match_ways_to_bridges(state):
         if not way:
             break
 
+        # look for a nearby bridge
         sql = """
             SELECT 
-                structure_number,
-                ST_Distance(location, ST_GeomFromText(%(wkt)s, 4326)) AS dist
+                nbi_bridge_id,
+                ST_Distance(location, ST_GeomFromText(%(wkt)s, 4326)) AS distance
             FROM 
                 nbi_bridges
             WHERE
@@ -225,14 +248,117 @@ def match_ways_to_bridges(state):
                     ST_GeomFromText(%(wkt)s, 4326),
                     0.001
                 )
-            ORDER BY dist
+            ORDER BY distance ASC
             """
-        cur2.execute(sql)
+        params = {
+            'wkt': way['wkt'],
+            'state': state.abbr
+        }
+        cur2.execute(sql, params)
 
-        # @TODO: record results
+        # if a matching bridge was found, record it
+        result = cur2.fetchone()
+        if result is not None:
+            sql = """
+            INSERT INTO nbi_bridge_osm_ways 
+            (
+                nbi_bridge_id,
+                osm_id,
+                distance
+            )
+            VALUES
+            ( %(nbi_bridge_id)s, %(osm_id)s, %(distance)s );
+            """
+            params = {
+                'nbi_bridge_id': result['nbi_bridge_id'],
+                'osm_id': way['osm_id'],
+                'distance': result['distance']
 
+            }
+            cur3.execute(sql, params)
+            match_ways_to_bridges = matched_bridges + 1
+
+        processed_records = processed_records + 1
+        pbar.update(processed_records)
+
+    pbar.finish()
+
+    conn.commit()
+    cur3.close()
+    cur2.close()
     cur.close()
     conn.close() 
+
+def makegeojson(state):
+    if not os.path.exists('build/{}'.format(state.abbr)):
+        os.mkdir('build/{}'.format(state.abbr))
+
+    conn = psycopg2.connect('dbname={}'.format(DBNAME))
+    psycopg2.extras.register_hstore(conn)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    sql = "SELECT COUNT(*) AS total FROM nbi_bridge_osm_ways"
+    cur.execute(sql)
+    result = cur.fetchone()
+
+    pbar = ProgressBar(widgets=['GeoJSON/{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
+
+    sql = """
+            SELECT 
+                nbi_bridge_osm_ways.osm_id AS osm_id,
+                nbi_bridges.nbi_bridge_id AS nbi_bridge_id,
+                nbi_bridges.structure_number AS nbi_structure_number,
+                ST_AsGeoJSON(location) AS ptjson, 
+                ST_AsGeoJSON(way) AS wayjson
+            FROM
+                nbi_bridge_osm_ways
+            INNER JOIN
+                planet_osm_roads 
+                    ON planet_osm_roads.osm_id=nbi_bridge_osm_ways.osm_id
+            INNER JOIN
+                nbi_bridges
+                    ON nbi_bridges.nbi_bridge_id=nbi_bridge_osm_ways.nbi_bridge_id
+        """
+    cur.execute(sql)
+    i = 0
+    while True:
+        result = cur.fetchone()
+        if result is None:
+            break
+
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "state": state.abbr,
+                        "nbi_bridge_id": result['nbi_bridge_id'],
+                        "structure_number": result['nbi_structure_number']
+                    },
+                    "geometry": json.loads(result['ptjson'])   
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "state": state.abbr,
+                        "osm_id": result['osm_id']
+                    },
+                    "geometry": json.loads(result['wayjson'])    
+                }
+            ]
+        }
+
+        with open('build/{}/{}.json'.format(state.abbr, result['osm_id']), 'w') as jsonout:
+            json.dump(geojson, jsonout, indent=4) 
+
+        i = i + 1
+        pbar.update(i)
+
+    pbar.finish()       
+    
+    cur.close()
+    conn.close()
 
 def main():
     # writefile = open('build/nbi_way_matches.csv', 'w')
@@ -251,7 +377,9 @@ def main():
 
         load_nbi(state)
 
+        match_ways_to_bridges(state)
 
+        makegeojson(state)
         
 
                
