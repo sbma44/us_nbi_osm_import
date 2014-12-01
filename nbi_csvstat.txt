@@ -1,0 +1,1426 @@
+  1. STATE_CODE_001
+    <type 'unicode'>
+    Nulls: False
+    Unique values: 52
+    5 most frequent values:
+        48: 62075
+        06: 34278
+        39: 32394
+        17: 30698
+        42: 29722
+    Max length: 2
+  2. STRUCTURE_NUMBER_008
+    <type 'unicode'>
+    Nulls: False
+    Unique values: 562935
+    5 most frequent values:
+        0713151:    24
+        53 1301:    24
+        0901150:    23
+        100333: 22
+        100332: 22
+    Max length: 15
+  3. RECORD_TYPE_005A
+    <type 'unicode'>
+    Nulls: False
+    Unique values: 28
+    5 most frequent values:
+        1:  610075
+        2:  81241
+        A:  10817
+        B:  10658
+        C:  2541
+    Max length: 1
+  4. ROUTE_PREFIX_005B
+    <type 'int'>
+    Nulls: True
+    Min: 1
+    Max: 8
+    Sum: 2535498
+    Mean: 3.5331401984
+    Median: 4
+    Standard Deviation: 1.50427087075
+    Unique values: 8
+    5 most frequent values:
+        4:  270332
+        3:  170151
+        5:  89972
+        1:  85282
+        2:  65128
+  5. SERVICE_LEVEL_005C
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 8
+    Sum: 868445
+    Mean: 1.21004069951
+    Median: 1
+    Standard Deviation: 1.3625829821
+    Unique values: 8
+    5 most frequent values:
+        1:  600580
+        0:  71459
+        7:  20193
+        8:  8641
+        2:  8121
+  6. ROUTE_NUMBER_005D
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 27259
+    5 most frequent values:
+        00000:  192470
+        00010:  7307
+        00090:  6362
+        00020:  5524
+        00040:  5369
+    Max length: 5
+  7. DIRECTION_005E
+    <type 'int'>
+    Nulls: True
+    Values: 0, 1, 2, 3, 4
+  8. HIGHWAY_DISTRICT_002
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 117
+    5 most frequent values:
+        01: 67718
+        03: 66886
+        02: 64528
+        04: 62175
+        05: 53988
+    Max length: 4
+  9. COUNTY_CODE_003
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 318
+    5 most frequent values:
+        003:    16157
+        037:    14479
+        013:    13896
+        031:    12890
+        019:    12243
+    Max length: 4
+ 10. PLACE_CODE_004
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 99999
+    Sum: 15246200710
+    Mean: 21243.2571869
+    Median: 1051.0
+    Standard Deviation: 28570.3778571
+    Unique values: 17941
+    5 most frequent values:
+        0:  349427
+        51000:  3638
+        19750:  2895
+        36000:  2545
+        44000:  2272
+ 11. FEATURES_DESC_006A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 181038
+    5 most frequent values:
+        CREEK:  18021
+        STREAM: 13361
+        DRAW:   6474
+        BRANCH: 5832
+        DRAINAGE DITCH: 3378
+    Max length: 45
+ 12. CRITICAL_FACILITY_006B
+    <type 'unicode'>
+    Nulls: True
+    Values: IN COLLAGE PARK
+ 13. FACILITY_CARRIED_007
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 229447
+    5 most frequent values:
+        COUNTY HIGHWAY: 7002
+        LOCAL:  6924
+        LOCAL ROAD: 5652
+        FM: 4619
+        TOWNSHIP ROAD:  1814
+    Max length: 18
+ 14. LOCATION_009
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 539408
+    5 most frequent values:
+        NO DATA:    2432
+        000000000:  1255
+        NO DATA ENTERED:    1095
+        IN DETROIT: 694
+        LAS VEGAS:  384
+    Max length: 447
+ 15. MIN_VERT_CLR_010
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.99
+    Sum: 58372605.1703
+    Mean: 81.5356643879
+    Median: 99.99
+    Standard Deviation: 36.1170915443
+    Unique values: 1433
+    5 most frequent values:
+        99.99:  563301
+        30.48:  35668
+        30.18:  3403
+        5.18:   2301
+        4.57:   2066
+ 16. KILOPOINT_011
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 81888
+    5 most frequent values:
+        0:  247811
+        0.01:   7387
+        0.161:  4673
+        0.322:  3402
+        0.805:  3280
+    Max length: 18
+ 17. BASE_HWY_NETWORK_012
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, WBL .8 MI E OF KY 1184 OP
+ 18. LRS_INV_ROUTE_013A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 35956
+    5 most frequent values:
+        0000000000: 52286
+        0000000001: 3655
+        0000000200: 1463
+        0000000005: 1383
+        0000000015: 1316
+    Max length: 10
+ 19. SUBROUTE_NO_013B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 102
+    5 most frequent values:
+        0:  202134
+        1:  21812
+        2:  2922
+        3:  1975
+        4:  1408
+    Max length: 9
+ 20. LAT_016
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 485352
+    5 most frequent values:
+        00000000:   7529
+        64100000:   3134
+        39420000:   268
+        40490600:   174
+        41152400:   170
+    Max length: 8
+ 21. LONG_017
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 524810
+    5 most frequent values:
+        000000000:  7526
+        021570000:  3133
+        095570600:  90
+        097220000:  66
+        097251800:  65
+    Max length: 10
+ 22. DETOUR_KILOS_019
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 382
+    5 most frequent values:
+        2:  110278
+        0:  89294
+        3:  88267
+        5:  63519
+        6:  59714
+    Max length: 4
+ 23. TOLL_020
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 7
+    5 most frequent values:
+        3:  705422
+        2:  9971
+        4:  1229
+        1:  637
+        5:  123
+    Max length: 8
+ 24. MAINTENANCE_021
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 37
+    5 most frequent values:
+        01: 285252
+        02: 227963
+        04: 45164
+        03: 29858
+        31: 7410
+    Max length: 9
+ 25. OWNER_022
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 37
+    5 most frequent values:
+        01: 285012
+        02: 227565
+        04: 45210
+        03: 29922
+        31: 7555
+    Max length: 4
+ 26. FUNCTIONAL_CLASS_026
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 14
+    5 most frequent values:
+        09: 211475
+        07: 97792
+        11: 52598
+        08: 49991
+        19: 42677
+    Max length: 4
+ 27. YEAR_BUILT_027
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 213
+    5 most frequent values:
+        1965:   16822
+        1960:   16617
+        1970:   15937
+        1968:   13647
+        1963:   13410
+    Max length: 4
+ 28. TRAFFIC_LANES_ON_028A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 34
+    5 most frequent values:
+        2:  530001
+        1:  51927
+        4:  51348
+        3:  31407
+        0:  15173
+    Max length: 4
+ 29. TRAFFIC_LANES_UND_028B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 74
+    5 most frequent values:
+        0:  520616
+        2:  66486
+        4:  55730
+        6:  20255
+        8:  10352
+    Max length: 4
+ 30. ADT_029
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 985500
+    Sum: 7688542258
+    Mean: 10722.4333214
+    Median: 1347.0
+    Standard Deviation: 27407.6349692
+    Unique values: 33554
+    5 most frequent values:
+        100:    23005
+        50: 21655
+        25: 9888
+        20: 9752
+        10: 9348
+ 31. YEAR_ADT_030
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 2013.0
+    Sum: 1432033395.6
+    Mean: 1996.34392579
+    Median: 2010.0
+    Standard Deviation: 150.514764993
+    Unique values: 113
+    5 most frequent values:
+        2011.0: 185094
+        2012.0: 103215
+        2010.0: 100717
+        2009.0: 65758
+        2008.0: 54652
+ 32. DESIGN_LOAD_031
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 13
+    5 most frequent values:
+        5:  248932
+        0:  114139
+        6:  68906
+        2:  66866
+        4:  50122
+    Max length: 4
+ 33. APPR_WIDTH_MT_032
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 4505.0
+    Sum: 6264508.9
+    Mean: 10.2684578731
+    Median: 8.5
+    Standard Deviation: 9.00843598121
+    Unique values: 830
+    5 most frequent values:
+        7.3:    57394
+        6.1:    41242
+        8.5:    34878
+        6.7:    32686
+        12.2:   29173
+ 34. MEDIAN_CODE_033
+    <type 'int'>
+    Nulls: True
+    Values: 0, 1, 2, 3, 2012
+ 35. DEGREES_SKEW_034
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 99
+    Sum: 7326780
+    Mean: 12.0096578448
+    Median: 0.0
+    Standard Deviation: 18.7071862296
+    Unique values: 99
+    5 most frequent values:
+        0:  353929
+        30: 43216
+        45: 25342
+        15: 24627
+        20: 15955
+ 36. STRUCTURE_FLARED_035
+    <type 'float'>
+    Nulls: True
+    Values: 0.0, 1.0, 13.4
+ 37. RAILINGS_036A
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, 2, N
+ 38. TRANSITIONS_036B
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, 30, N
+ 39. APPR_RAIL_036C
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, 5, N
+ 40. APPR_RAIL_END_036D
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, N
+ 41. HISTORY_037
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 5
+    Sum: 2907658
+    Mean: 4.76616021624
+    Median: 5
+    Standard Deviation: 0.553855032793
+    Unique values: 6
+    5 most frequent values:
+        5:  496553
+        4:  92339
+        3:  14992
+        2:  4383
+        1:  1795
+ 42. NAVIGATION_038
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, N
+ 43. NAV_VERT_CLR_MT_039
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 419
+    5 most frequent values:
+        0:  605881
+        3:  133
+        19.8:   114
+        6:  110
+        2.1:    97
+    Max length: 5
+ 44. NAV_HORR_CLR_MT_040
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 9696.5
+    Sum: 553251.5
+    Mean: 0.906859659648
+    Median: 0.0
+    Standard Deviation: 53.5818317028
+    Unique values: 818
+    5 most frequent values:
+        0.0:    605885
+        27.4:   142
+        15.2:   107
+        45.7:   99
+        30.5:   86
+ 45. OPEN_CLOSED_POSTED_041
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 10
+    5 most frequent values:
+        A:  537442
+        P:  60934
+        K:  3454
+        R:  3100
+        B:  2085
+    Max length: 4
+ 46. SERVICE_ON_042A
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 9
+    Sum: 1107248
+    Mean: 1.54286303504
+    Median: 1.0
+    Standard Deviation: 1.41893019467
+    Unique values: 10
+    5 most frequent values:
+        1:  617448
+        5:  64347
+        6:  20877
+        2:  8680
+        3:  3219
+ 47. SERVICE_UND_042B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        5:  493491
+        1:  172507
+        2:  15422
+        4:  11483
+        6:  9453
+    Max length: 4
+ 48. STRUCTURE_KIND_043A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        1:  183543
+        3:  158500
+        5:  149229
+        2:  86552
+        4:  78105
+    Max length: 4
+ 49. STRUCTURE_TYPE_043B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 24
+    5 most frequent values:
+        02: 320974
+        19: 136377
+        01: 85186
+        05: 62578
+        04: 39281
+    Max length: 4
+ 50. APPR_KIND_044A
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 9
+    Sum: 92412
+    Mean: 0.151476706105
+    Median: 0.0
+    Standard Deviation: 0.803612689036
+    Unique values: 10
+    5 most frequent values:
+        0:  583437
+        5:  6807
+        3:  6459
+        1:  6198
+        4:  2785
+ 51. APPR_TYPE_044B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 23
+    5 most frequent values:
+        00: 581932
+        02: 17219
+        01: 3736
+        20: 2225
+        04: 2076
+    Max length: 4
+ 52. MAIN_UNIT_SPANS_045
+    <type 'float'>
+    Nulls: True
+    Min: -8.0
+    Max: 998.0
+    Sum: 1688336.1
+    Mean: 2.76743291377
+    Median: 2.0
+    Standard Deviation: 4.97447822467
+    Unique values: 182
+    5 most frequent values:
+        1.0:    209502
+        3.0:    165145
+        2.0:    117613
+        4.0:    53656
+        5.0:    24641
+ 53. APPR_SPANS_046
+    <type 'int'>
+    Nulls: True
+    Min: -1
+    Max: 3000
+    Sum: 178747
+    Mean: 0.292992325521
+    Median: 0.0
+    Standard Deviation: 7.73096548607
+    Unique values: 167
+    5 most frequent values:
+        0:  581269
+        2:  13208
+        1:  4462
+        4:  2068
+        3:  1699
+ 54. HORR_CLR_MT_047
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 391.0
+    Sum: 8557284.30001
+    Mean: 11.9367101974
+    Median: 9.2
+    Standard Deviation: 10.3111902136
+    Unique values: 657
+    5 most frequent values:
+        7.3:    52217
+        8.5:    38706
+        9.1:    26795
+        7.9:    23820
+        12.2:   20716
+ 55. MAX_SPAN_LEN_MT_048
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 2495.4
+    Sum: 12234711.8
+    Mean: 17.0482752759
+    Median: 12.8
+    Standard Deviation: 19.4838473104
+    Unique values: 1377
+    5 most frequent values:
+        3.0:    41243
+        9.1:    18925
+        3.7:    16956
+        12.2:   15577
+        6.1:    13077
+ 56. STRUCTURE_LEN_MT_049
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 38421.6
+    Sum: 41240703.4
+    Mean: 57.465757876
+    Median: 25.0
+    Standard Deviation: 210.669079523
+    Unique values: 6447
+    5 most frequent values:
+        9.1:    12755
+        7.9:    11975
+        6.7:    11776
+        7.3:    11018
+        7.6:    11013
+ 57. LEFT_CURB_MT_050A
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.9
+    Sum: 147535.5
+    Mean: 0.241832534795
+    Median: 0.0
+    Standard Deviation: 0.816108966519
+    Unique values: 189
+    5 most frequent values:
+        0.0:    455353
+        0.2:    39095
+        0.5:    15730
+        1.5:    14109
+        0.3:    13030
+ 58. RIGHT_CURB_MT_050B
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.9
+    Sum: 149524.4
+    Mean: 0.245092636455
+    Median: 0.0
+    Standard Deviation: 0.859191290828
+    Unique values: 191
+    5 most frequent values:
+        0.0:    454303
+        0.2:    39115
+        0.5:    15646
+        1.5:    14224
+        0.3:    13075
+ 59. ROADWAY_WIDTH_MT_051
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 999.9
+    Sum: 5430362.09
+    Mean: 8.90116771272
+    Median: 8.0
+    Standard Deviation: 7.08895243934
+    Unique values: 821
+    5 most frequent values:
+        0.0:    85483
+        7.3:    48506
+        8.5:    32598
+        9.1:    22051
+        12.2:   21582
+ 60. DECK_WIDTH_MT_052
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 1134
+    5 most frequent values:
+        0:  83560
+        7.3:    18703
+        8.5:    15287
+        7.9:    14783
+        9.1:    12819
+    Max length: 5
+ 61. VERT_CLR_OVER_MT_053
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.99
+    Sum: 56157020.5902
+    Mean: 92.0498245948
+    Median: 99.99
+    Standard Deviation: 23.9858440624
+    Unique values: 660
+    5 most frequent values:
+        99.99:  543291
+        30.48:  23834
+        10.0:   16325
+        30.47:  6492
+        99.9:   4108
+ 62. VERT_CLR_UND_REF_054A
+    <type 'unicode'>
+    Nulls: True
+    Values: H, 13.4, R, N
+ 63. VERT_CLR_UND_054B
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.99
+    Sum: 730573.97
+    Mean: 1.19751697335
+    Median: 0.0
+    Standard Deviation: 5.3143660284
+    Unique values: 1259
+    5 most frequent values:
+        0.0:    503166
+        5.0:    3863
+        5.03:   2017
+        5.08:   1884
+        5.18:   1874
+ 64. LAT_UND_REF_055A
+    <type 'unicode'>
+    Nulls: True
+    Values: H, R, N, 1.9, 99.99
+ 65. LAT_UND_MT_055B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 587
+    5 most frequent values:
+        0:  378620
+        99.9:   119145
+        30.4:   9713
+        3:  7083
+        3.7:    3857
+    Max length: 4
+ 66. LEFT_LAT_UND_MT_056
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.9
+    Sum: 1312679.8
+    Mean: 2.15167307573
+    Median: 0.0
+    Standard Deviation: 12.9299565084
+    Unique values: 372
+    5 most frequent values:
+        0.0:    542553
+        99.9:   9869
+        1.8:    2182
+        3.0:    2139
+        1.2:    1972
+ 67. DECK_COND_058
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        7:  187342
+        N:  141107
+        6:  109087
+        8:  75213
+        5:  60209
+    Max length: 4
+ 68. SUPERSTRUCTURE_COND_059
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        7:  170439
+        N:  136163
+        6:  102318
+        8:  101476
+        5:  58018
+    Max length: 4
+ 69. SUBSTRUCTURE_COND_060
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        7:  178686
+        N:  136133
+        6:  105880
+        8:  80408
+        5:  61827
+    Max length: 4
+ 70. CHANNEL_COND_061
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        7:  175384
+        6:  135383
+        8:  106823
+        N:  103649
+        5:  56712
+    Max length: 4
+ 71. CULVERT_COND_062
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 12
+    5 most frequent values:
+        N:  474066
+        7:  59064
+        6:  34725
+        8:  23616
+        5:  11676
+    Max length: 4
+ 72. OPR_RATING_METH_063
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 15
+    5 most frequent values:
+        1:  324405
+        2:  135435
+        5:  90396
+        0:  33707
+        3:  13589
+    Max length: 4
+ 73. OPERATING_RATING_064
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.9
+    Sum: 30338095.1
+    Mean: 50.0858398737
+    Median: 44.4
+    Standard Deviation: 21.2581837024
+    Unique values: 987
+    5 most frequent values:
+        44.1:   55775
+        32.4:   25528
+        40.5:   18493
+        99.9:   14745
+        40.8:   10866
+ 74. INV_RATING_METH_065
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 16
+    5 most frequent values:
+        1:  324642
+        2:  135490
+        5:  90016
+        0:  33795
+        3:  13580
+    Max length: 4
+ 75. INVENTORY_RATING_066
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 99.9
+    Sum: 19630280.1
+    Mean: 32.4071590239
+    Median: 32.4
+    Standard Deviation: 14.4602387593
+    Unique values: 982
+    5 most frequent values:
+        32.4:   114477
+        32.7:   44505
+        24.3:   25942
+        40.8:   7683
+        32.6:   6196
+ 76. STRUCTURAL_EVAL_067
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        7:  172025
+        6:  156165
+        5:  104417
+        8:  75162
+        4:  51594
+    Max length: 4
+ 77. DECK_GEOMETRY_EVAL_068
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 12
+    5 most frequent values:
+        5:  119625
+        6:  111552
+        4:  93202
+        N:  87621
+        7:  61104
+    Max length: 4
+ 78. UNDCLRENCE_EVAL_069
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 12
+    5 most frequent values:
+        N:  505521
+        3:  22546
+        4:  20686
+        6:  18251
+        5:  16922
+    Max length: 4
+ 79. POSTING_EVAL_070
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 8
+    Sum: 2846803
+    Mean: 4.66637762738
+    Median: 5
+    Standard Deviation: 1.13752281626
+    Unique values: 8
+    5 most frequent values:
+        5:  552494
+        0:  25181
+        4:  9253
+        3:  8757
+        1:  7724
+ 80. WATERWAY_EVAL_071
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 10
+    5 most frequent values:
+        8:  176316
+        7:  122248
+        N:  104128
+        6:  102893
+        9:  57425
+    Max length: 4
+ 81. APPR_ROAD_EVAL_072
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 10
+    5 most frequent values:
+        8:  379713
+        6:  84922
+        7:  84787
+        5:  22094
+        4:  15055
+    Max length: 4
+ 82. WORK_PROPOSED_075A
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 38
+    Sum: 7396662
+    Mean: 33.5801315664
+    Median: 34
+    Standard Deviation: 2.60505397903
+    Unique values: 10
+    5 most frequent values:
+        31: 94509
+        35: 41141
+        38: 33509
+        34: 24674
+        33: 14775
+ 83. WORK_DONE_BY_075B
+    <type 'int'>
+    Nulls: True
+    Values: 1, 2, 411, 9
+ 84. IMP_LEN_MT_076
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 67056.0
+    Sum: 13099273.9
+    Mean: 29.3933722125
+    Median: 1.3
+    Standard Deviation: 305.639062801
+    Unique values: 4758
+    5 most frequent values:
+        0.0:    217472
+        0.1:    4212
+        18.3:   3653
+        9.1:    2952
+        13.7:   2580
+ 85. DATE_OF_INSPECT_090
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 193
+    5 most frequent values:
+        1012:   37047
+        1112:   29992
+        512:    29096
+        812:    28489
+        912:    27932
+    Max length: 4
+ 86. INSPECT_FREQ_MONTHS_091
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 28
+    5 most frequent values:
+        24: 524142
+        12: 51958
+        48: 31708
+        6:  722
+        23: 500
+    Max length: 4
+ 87. FRACTURE_092A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 24
+    5 most frequent values:
+        N:  528728
+        N00:    61945
+        Y24:    15438
+        Y12:    3308
+        n00:    262
+    Max length: 4
+ 88. UNDWATER_LOOK_SEE_092B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 31
+    5 most frequent values:
+        N:  524077
+        N00:    59392
+        Y60:    13356
+        Y24:    7216
+        Y48:    4863
+    Max length: 4
+ 89. SPEC_INSPECT_092C
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 32
+    5 most frequent values:
+        N:  545332
+        N00:    49140
+        Y12:    9569
+        Y24:    3172
+        Y06:    1217
+    Max length: 4
+ 90. FRACTURE_LAST_DATE_093A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 179
+    5 most frequent values:
+        1012:   1328
+        0512:   1045
+        0912:   1013
+        0612:   1008
+        1112:   969
+    Max length: 4
+ 91. UNDWATER_LAST_DATE_093B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 209
+    5 most frequent values:
+        0811:   928
+        0911:   898
+        1012:   881
+        0612:   838
+        0912:   836
+    Max length: 4
+ 92. SPEC_LAST_DATE_093C
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 139
+    5 most frequent values:
+        1012:   1194
+        0812:   1147
+        1112:   1094
+        0612:   1070
+        0512:   1010
+    Max length: 4
+ 93. BRIDGE_IMP_COST_094
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 984000
+    Sum: 300674050
+    Mean: 785.14813867
+    Median: 24.0
+    Standard Deviation: 11754.1453809
+    Unique values: 8699
+    5 most frequent values:
+        0:  164530
+        1:  6794
+        15: 5520
+        100:    4733
+        2500:   3807
+ 94. ROADWAY_IMP_COST_095
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 999999
+    Sum: 80417227
+    Mean: 214.634244444
+    Median: 3
+    Standard Deviation: 4840.83032263
+    Unique values: 4332
+    5 most frequent values:
+        0:  164540
+        1:  11735
+        2:  9264
+        10: 5543
+        200:    5496
+ 95. TOTAL_IMP_COST_096
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 991000
+    Sum: 432073230
+    Mean: 1134.35117971
+    Median: 12
+    Standard Deviation: 14783.9514399
+    Unique values: 11042
+    5 most frequent values:
+        0:  172253
+        225:    5746
+        2:  5440
+        1:  5178
+        3000:   3814
+ 96. YEAR_OF_IMP_097
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 7636
+    Sum: 440385359
+    Mean: 2010.87368609
+    Median: 2012.0
+    Standard Deviation: 13.1345957735
+    Unique values: 48
+    5 most frequent values:
+        2013:   69122
+        2012:   51577
+        2007:   28390
+        2010:   16775
+        2011:   16600
+ 97. OTHER_STATE_CODE_098A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 64
+    5 most frequent values:
+        275:    83
+        175:    66
+        395:    56
+        543:    54
+        555:    49
+    Max length: 4
+ 98. OTHER_STATE_PCNT_098B
+    <type 'int'>
+    Nulls: True
+    Min: -1
+    Max: 99
+    Sum: 45039
+    Mean: 0.330462026106
+    Median: 0
+    Standard Deviation: 4.31374366632
+    Unique values: 76
+    5 most frequent values:
+        0:  135396
+        50: 648
+        99: 51
+        1:  16
+        49: 7
+ 99. OTHR_STATE_STRUC_NO_099
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 890
+    5 most frequent values:
+        _:  66355
+        0:  2324
+        000000000000000:    442
+        ???????????????:    27
+        69100:  19
+    Max length: 15
+100. STRAHNET_HIGHWAY_100
+    <type 'int'>
+    Nulls: True
+    Values: 0, 1, 2, 3
+101. PARALLEL_STRUCTURE_101
+    <type 'unicode'>
+    Nulls: True
+    Values: R, L, N
+102. TRAFFIC_DIRECTION_102
+    <type 'int'>
+    Nulls: True
+    Values: 0, 1, 2, 3
+103. TEMP_STRUCTURE_103
+    <type 'unicode'>
+    Nulls: True
+    Values: 0, T
+104. HIGHWAY_SYSTEM_104
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, L
+105. FEDERAL_LANDS_105
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 9
+    Sum: 24162
+    Mean: 0.039605615795
+    Median: 0
+    Standard Deviation: 0.341624525782
+    Unique values: 8
+    5 most frequent values:
+        0:  596887
+        1:  7541
+        2:  3466
+        3:  1155
+        6:  580
+106. YEAR_RECONSTRUCTED_106
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 5555
+    Sum: 173592810
+    Mean: 304.139002187
+    Median: 0.0
+    Standard Deviation: 715.619040405
+    Unique values: 144
+    5 most frequent values:
+        0:  483395
+        1992:   2482
+        1990:   2439
+        1988:   2353
+        1991:   2298
+107. DECK_STRUCTURE_TYPE_107
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        1:  362535
+        N:  118876
+        2:  57163
+        8:  41344
+        9:  13373
+    Max length: 4
+108. SURFACE_TYPE_108A
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 11
+    5 most frequent values:
+        6:  186803
+        1:  171847
+        N:  95400
+        0:  59712
+        8:  24796
+    Max length: 4
+109. MEMBRANE_TYPE_108B
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 7
+    5 most frequent values:
+        0:  397473
+        N:  97971
+        8:  74474
+        2:  15588
+        1:  12137
+    Max length: 4
+110. DECK_PROTECTION_108C
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 10
+    5 most frequent values:
+        0:  338174
+        N:  112478
+        1:  80388
+        8:  71462
+        9:  3261
+    Max length: 4
+111. PERCENT_ADT_TRUCK_109
+    <type 'int'>
+    Nulls: True
+    Min: 0
+    Max: 99
+    Sum: 5322285
+    Mean: 8.23373298267
+    Median: 6.0
+    Standard Deviation: 8.90319425625
+    Unique values: 98
+    5 most frequent values:
+        0:  107578
+        10: 64355
+        5:  56384
+        6:  40194
+        1:  39810
+112. NATIONAL_NETWORK_110
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, Y
+113. PIER_PROTECTION_111
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 7
+    5 most frequent values:
+        1:  76377
+        2:  2293
+        5:  1998
+        3:  318
+        4:  91
+    Max length: 4
+114. BRIDGE_LEN_IND_112
+    <type 'unicode'>
+    Nulls: True
+    Values: 9, Y, 3405, N
+115. SCOUR_CRITICAL_113
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 14
+    5 most frequent values:
+        8:  314178
+        N:  103041
+        5:  96817
+        U:  32012
+        3:  20872
+    Max length: 4
+116. FUTURE_ADT_114
+    <type 'int'>
+    Nulls: True
+    Min: -68
+    Max: 999999
+    Sum: 6523372989
+    Mean: 10695.2463373
+    Median: 1178.0
+    Standard Deviation: 28717.7574723
+    Unique values: 41430
+    5 most frequent values:
+        160:    7229
+        100:    6748
+        50: 6115
+        75: 5446
+        40: 4934
+117. YEAR_OF_FUTURE_ADT_115
+    <type 'unicode'>
+    Nulls: True
+    Unique values: 104
+    5 most frequent values:
+        2031:   162769
+        2032:   123473
+        2030:   102079
+        2033:   85120
+        2029:   39816
+    Max length: 4
+118. MIN_NAV_CLR_MT_116
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 999.9
+    Sum: 17155.2
+    Mean: 0.0770182543032
+    Median: 0.0
+    Standard Deviation: 7.52748333406
+    Unique values: 97
+    5 most frequent values:
+        0.0:    222496
+        999.9:  12
+        30.2:   11
+        1.2:    11
+        3.0:    10
+119. FED_AGENCY
+    <type 'unicode'>
+    Nulls: True
+    Values: Y, 6848, N
+120. DATE_LAST_UPDATE
+    <type 'int'>
+    Nulls: True
+    Values: 2032
+121. TYPE_LAST_UPDATE
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+122. DEDUCT_CODE
+    <type 'bool'>
+    Nulls: True
+    Unique values: 1
+123. REMARKS
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+124. PROGRAM_CODE
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+125. PROJ_NO
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+126. PROJ_SUFFIX
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+127. NBI_TYPE_OF_IMP
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+128. DTL_TYPE_OF_IMP
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+129. SPECIAL_CODE
+    <type 'int'>
+    Nulls: True
+    Values: 0
+130. STEP_CODE
+    <type 'NoneType'>
+    Nulls: True
+    Values: 
+131. STATUS_WITH_10YR_RULE
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, 2, 97.6, N
+132. SUFFICIENCY_ASTERC
+    <type 'int'>
+    Nulls: True
+    Values: 0
+133. SUFFICIENCY_RATING
+    <type 'float'>
+    Nulls: True
+    Min: 0.0
+    Max: 100.0
+    Sum: 49169218.1
+    Mean: 80.6113544627
+    Median: 86.3
+    Standard Deviation: 19.4443201157
+    Unique values: 981
+    5 most frequent values:
+        100.0:  28610
+        97.0:   14043
+        98.0:   12582
+        99.0:   9402
+        99.9:   8257
+134. STATUS_NO_10YR_RULE
+    <type 'unicode'>
+    Nulls: True
+    Values: 1, 0, 2, N
+
+Row count: 717785

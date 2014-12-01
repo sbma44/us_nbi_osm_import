@@ -114,8 +114,8 @@ def load_nbi(state):
             # N = other
             under_clearance = None
             try:
-                under_clearance_type = row[15]
-                under_clearance = float(row[16]) # meters; >30m is 9999
+                under_clearance_type = row[61]
+                under_clearance = float(row[62]) # meters; >30m is 9999
             except:
                 pass
 
