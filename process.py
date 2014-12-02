@@ -474,7 +474,6 @@ def geojson(state=us.states.FL):
     conn.close()
 
 def find_intersecting_ways():
-    # @TODO Exclude bridge way from results
     # @TODO Exclude ways that share orientation but simply touch at edges
 
     conn = psycopg2.connect('dbname={}'.format(DBNAME))
@@ -491,6 +490,7 @@ def find_intersecting_ways():
     sql = """
     SELECT 
         nbi_bridge_id, 
+        osm_id,
         ST_AsText(way) AS wkt
     FROM 
         nbi_bridge_osm_ways 
@@ -514,9 +514,11 @@ def find_intersecting_ways():
         FROM 
             planet_osm_roads 
         WHERE 
-            ST_Intersects(way, ST_GeomFromText(%(geom)s, 4326))            
+            ST_Intersects(way, ST_GeomFromText(%(geom)s, 4326)) 
+        AND
+            osm_id!=%(osm_id)s           
         """
-        params = {'geom': result['wkt']}
+        params = {'geom': result['wkt'], 'osm_id': result['osm_id']}
         cur2.execute(sql, params)
         while True:
             result2 = cur2.fetchone()
