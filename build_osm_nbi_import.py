@@ -616,7 +616,7 @@ def unmatched_bridges(state):
 
 def main():
     states = us.states
-    if len(sys.argv[1]):
+    if (len(sys.argv)>1) and len(sys.argv[1]):
         selected_state = getattr(us.states, sys.argv[1].upper(), None)
         if selected_state is not None:
             states = [ selected_state ]
