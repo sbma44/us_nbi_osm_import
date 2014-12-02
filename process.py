@@ -377,7 +377,7 @@ def geojson(state=us.states.FL):
         intersecting_ways = []
         sql = """
         SELECT 
-            intersecting_ways.osm_id,
+            DISTINCT intersecting_ways.osm_id,
             ST_AsGeoJSON(planet_osm_roads.way) as wayjson,
             EXIST(planet_osm_roads.tags, 'maxheight') as maxheight_set
         FROM
@@ -413,7 +413,7 @@ def geojson(state=us.states.FL):
                     "properties": {
                         "state": state.abbr,
                         "nbi_bridge_id": result['nbi_bridge_id'],
-                        "structure_number": result['nbi_structure_number']
+                        "nbi_structure_number": result['nbi_structure_number']
                     },
                     "geometry": json.loads(result['ptjson'])   
                 },
@@ -422,7 +422,8 @@ def geojson(state=us.states.FL):
                     "properties": {
                         "state": state.abbr,
                         "nbi_bridge_id": result['nbi_bridge_id'],                        
-                        "osm_id": result['osm_id']
+                        "osm_id": result['osm_id'],
+                        "nbi_structure_number": result['nbi_structure_number']
                     },
                     "geometry": json.loads(result['wayjson'])    
                 }
@@ -474,8 +475,6 @@ def geojson(state=us.states.FL):
     conn.close()
 
 def find_intersecting_ways():
-    # @TODO Exclude ways that share orientation but simply touch at edges
-
     conn = psycopg2.connect('dbname={}'.format(DBNAME))
     psycopg2.extras.register_hstore(conn)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -490,7 +489,7 @@ def find_intersecting_ways():
     sql = """
     SELECT 
         nbi_bridge_id, 
-        osm_id,
+        nbi_bridge_osm_ways.osm_id,
         ST_AsText(way) AS wkt
     FROM 
         nbi_bridge_osm_ways 
@@ -514,7 +513,7 @@ def find_intersecting_ways():
         FROM 
             planet_osm_roads 
         WHERE 
-            ST_Intersects(way, ST_GeomFromText(%(geom)s, 4326)) 
+            ST_Intersects(way, ST_Line_SubString(ST_GeomFromText(%(geom)s, 4326), 0.01, 0.99)) 
         AND
             osm_id!=%(osm_id)s           
         """
@@ -549,8 +548,14 @@ def find_intersecting_ways():
 
 
 def main():
-    for state in (us.states.FL,):
-    # for state in us.states.STATES:
+    states = us.states
+    if len(sys.argv[1]):
+        selected_state = getattr(us.states, sys.argv[1].upper(), None)
+        if selected_state is not None:
+            states = [ selected_state ]
+
+
+    for state in states:
             
         # reset the database
         dropdb()
