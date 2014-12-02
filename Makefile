@@ -56,9 +56,8 @@ osm:
 
 nbi:
 	rm -rf nbi
-	mkdir nbi
-	# @TODO: download from mapbox s3
-	curl "http://www.fhwa.dot.gov/bridge/nbi/2013allstatesallrecsdel.zip" > nbi/nbi.zip
+	mkdir nbi	
+	curl "https://s3.amazonaws.com/gis-data/nbi/2013allstatesallrecsdel.zip" > nbi/nbi.zip
 	cd nbi && unzip nbi.zip	&& rm nbi.zip
 	cat nbi/allstatesallrecs13del.txt | iconv -f utf-8 -t utf-8 -c > nbi/nbi.csv
 	rm nbi/allstatesallrecs13del.txt

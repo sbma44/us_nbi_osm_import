@@ -1,6 +1,7 @@
 import sys
 import csv
 import os
+import math
 import subprocess
 import tempfile
 import json
@@ -29,7 +30,7 @@ def createdb():
         over_clearance real,
         under_clearance real,
         under_clearance_type text,
-        operating_load real,
+        operating_rating real,
         structure_number text,
         record_type text,
         toll_status text,
@@ -48,6 +49,14 @@ def createdb():
 
     CREATE INDEX nbi_bridge_osm_ways_nbi_bridge_id ON nbi_bridge_osm_ways(nbi_bridge_id);
     CREATE INDEX nbi_bridge_osm_ways_osm_id ON nbi_bridge_osm_ways(osm_id);
+    
+    CREATE TABLE intersecting_ways (
+        nbi_bridge_id integer,
+        osm_id integer
+    );
+
+    CREATE INDEX intersecting_ways_nbi_bridge_id ON intersecting_ways(nbi_bridge_id);
+    CREATE INDEX intersecting_ways_osm_id ON intersecting_ways(osm_id);
     """
     cur.execute(sql)
 
@@ -105,8 +114,29 @@ def load_nbi(state):
             # 3 = multiple routes go under structure
             record_type = row[2]
 
-            # clearance above bridge in meters; can be coded 99 if >30m
-            over_clearance = row[14] 
+            # clearance above bridge way in meters; can be coded 99 if >30m
+            # there are two candidate columns; use the lower of the two
+            over_clearance = None
+            try:
+                over_clearance_a = row[14] 
+                over_clearance_b = row[60]
+                # is value zero, 99.x or >30?
+                if (math.floor(float(over_clearance_a)) in [0, 99]) or (float(over_clearance_a)>=30):
+                    over_clearance_a = None
+                if (math.floor(float(over_clearance_b)) in [0, 99]) or (float(over_clearance_b)>=30):
+                    over_clearance_b = None
+
+                # is only one value set?
+                if over_clearance_a is None and over_clearance_b is not None:
+                    over_clearance = over_clearance_b
+                elif over_clearance_a is not None and over_clearance_b is None:
+                    over_clearance = over_clearance_a
+
+                # if both are valid values, take the shorter clearance to be safe
+                elif over_clearance_a is not None and over_clearance_b is not None:
+                    over_clearance = min(over_clearance_a, over_clearance_b)
+            except:
+                pass
 
             # type of route under bridge
             # H = highway
@@ -116,6 +146,8 @@ def load_nbi(state):
             try:
                 under_clearance_type = row[61]
                 under_clearance = float(row[62]) # meters; >30m is 9999
+                if under_clearance_type.strip()=='N' or float(under_clearance)>=30:
+                    under_clearance = None
             except:
                 pass
 
@@ -125,14 +157,14 @@ def load_nbi(state):
             # 3 = free road
             # 4 = ? - "On Interstate toll segment under Secretarial Agreement. Structure functions as a part of the toll segment."
             # 5 = ? - "Toll bridge is a segment under Secretarial Agreement. Structure is separate agreement from highway segment."
-            toll_status = row[22]
+            toll_status = row[22].strip()
+            if len(toll_status)==0:
+                toll_status = None
 
             # find weight limit
-            operating_rating = None
-            try:
-                operating_rating = row[72]
-            except:
-                pass
+            operating_rating = row[72].strip()
+            if len(operating_rating)==0:
+                operating_rating = None
 
             # extract coordinates
             try:                    
@@ -161,7 +193,8 @@ def load_nbi(state):
                 state,
                 over_clearance,
                 under_clearance,
-                operating_load,
+                under_clearance_type,
+                operating_rating,
                 structure_number,
                 record_type,
                 toll_status,
@@ -174,7 +207,8 @@ def load_nbi(state):
                 %(state)s,
                 %(over_clearance)s,
                 %(under_clearance)s,
-                %(operating_load)s,
+                %(under_clearance_type)s,
+                %(operating_rating)s,
                 %(structure_number)s,
                 %(record_type)s,
                 %(toll_status)s,
@@ -186,10 +220,11 @@ def load_nbi(state):
                 'state': state.abbr,
                 'over_clearance': over_clearance,
                 'under_clearance': under_clearance,
-                'operating_load': operating_rating,
+                'under_clearance_type': under_clearance_type,
+                'operating_rating': operating_rating,
                 'structure_number': structure_number,
-                'record_type': record_type,
-                'toll_status': toll_status,
+                'record_type': record_type.strip(),
+                'toll_status': toll_status.strip(),
                 'lat': lat,
                 'lon': lon
             }
@@ -243,6 +278,8 @@ def match_ways_to_bridges(state):
             WHERE
                 state = %(state)s
             AND
+                record_type = '1'
+            AND
                 ST_DWithin(
                     location,
                     ST_GeomFromText(%(wkt)s, 4326),
@@ -289,13 +326,14 @@ def match_ways_to_bridges(state):
     cur.close()
     conn.close() 
 
-def makegeojson(state):
+def geojson(state=us.states.FL):
     if not os.path.exists('build/{}'.format(state.abbr)):
         os.mkdir('build/{}'.format(state.abbr))
 
     conn = psycopg2.connect('dbname={}'.format(DBNAME))
     psycopg2.extras.register_hstore(conn)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur2 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     sql = "SELECT COUNT(*) AS total FROM nbi_bridge_osm_ways"
     cur.execute(sql)
@@ -303,13 +341,22 @@ def makegeojson(state):
 
     pbar = ProgressBar(widgets=['GeoJSON/{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
 
+    # fetch OSM->NBI mappings
     sql = """
             SELECT 
+                nbi_bridges.over_clearance,
+                nbi_bridges.under_clearance,
+                nbi_bridges.under_clearance_type,
+                nbi_bridges.toll_status,
+                nbi_bridges.operating_rating,
                 nbi_bridge_osm_ways.osm_id AS osm_id,
                 nbi_bridges.nbi_bridge_id AS nbi_bridge_id,
                 nbi_bridges.structure_number AS nbi_structure_number,
+                EXIST(planet_osm_roads.tags, 'maxweight') as maxweight_set,
+                EXIST(planet_osm_roads.tags, 'maxheight') as maxheight_set,
+                EXIST(planet_osm_roads.tags, 'toll') as toll_set,
                 ST_AsGeoJSON(location) AS ptjson, 
-                ST_AsGeoJSON(way) AS wayjson
+                ST_AsGeoJSON(way) AS wayjson            
             FROM
                 nbi_bridge_osm_ways
             INNER JOIN
@@ -320,12 +367,44 @@ def makegeojson(state):
                     ON nbi_bridges.nbi_bridge_id=nbi_bridge_osm_ways.nbi_bridge_id
         """
     cur.execute(sql)
-    i = 0
+    iteration = 0
     while True:
         result = cur.fetchone()
         if result is None:
             break
 
+        # fetch previously calculated intersecting ways
+        intersecting_ways = []
+        sql = """
+        SELECT 
+            intersecting_ways.osm_id,
+            ST_AsGeoJSON(planet_osm_roads.way) as wayjson,
+            EXIST(planet_osm_roads.tags, 'maxheight') as maxheight_set
+        FROM
+            intersecting_ways
+        INNER JOIN
+            planet_osm_roads
+                ON intersecting_ways.osm_id=planet_osm_roads.osm_id
+        WHERE
+            intersecting_ways.nbi_bridge_id=%(nbi_bridge_id)s
+        """
+        params = {'nbi_bridge_id': result['nbi_bridge_id']}
+        cur2.execute(sql, params)
+        while True:
+            result2 = cur2.fetchone()
+            if result2 is None:
+                break
+            intersecting_ways.append({
+                "type": "Feature",
+                "properties": {
+                    "state": state.abbr,
+                    "osm_id": result2['osm_id'],
+                    "maxheight_set": result2['maxheight_set']
+                },
+                "geometry": json.loads(result2['wayjson'])  
+            })
+
+        # construct output GeoJSON
         geojson = {
             "type": "FeatureCollection",
             "features": [
@@ -342,6 +421,7 @@ def makegeojson(state):
                     "type": "Feature",
                     "properties": {
                         "state": state.abbr,
+                        "nbi_bridge_id": result['nbi_bridge_id'],                        
                         "osm_id": result['osm_id']
                     },
                     "geometry": json.loads(result['wayjson'])    
@@ -349,25 +429,128 @@ def makegeojson(state):
             ]
         }
 
+        # apply operating load, if valid and not set
+        if not result['maxweight_set']:
+            if result['operating_rating'] is not None:
+                if float(result['operating_rating']) > 0:
+                    geojson['features'][1]['properties']['maxweight'] = result['operating_rating']
+
+        # apply toll status, if valid and not set
+        if not result['toll_set']:            
+            if result['toll_status'] == '1': # '1' = toll bridge in NBI
+                geojson['features'][1]['properties']['toll'] = 'yes'
+
+        # apply bridge way vertical clearance, if valid and not set
+        if not result['maxheight_set']:
+            if result['over_clearance'] is not None:
+                if (float(result['over_clearance']) > 0) and (float(result['over_clearance']) < 99):                
+                    geojson['features'][1]['properties']['maxheight'] = result['over_clearance']                
+
+        # apply intersecting way vertical clearance to roads underneath
+        # if under clearance type is highway or rail and maxheight not set
+        if result['under_clearance_type'] in ['H', 'R']:
+            # and if under clearance value is valid
+            if result['under_clearance'] is not None:            
+                if (float(result['under_clearance']) > 0) and (float(result['under_clearance']) < 99):
+                    for (i, way) in enumerate(intersecting_ways):
+                        if not intersecting_ways[i]['properties']['maxheight_set']:
+                            intersecting_ways[i]['properties']['maxheight'] = result['under_clearance']
+        
+        # remove all maxheight_set attributes
+        for (i, way) in enumerate(intersecting_ways):
+            del intersecting_ways[i]['properties']['maxheight_set']
+
+        geojson['features'] = geojson['features'] + intersecting_ways
+
         with open('build/{}/{}.json'.format(state.abbr, result['osm_id']), 'w') as jsonout:
             json.dump(geojson, jsonout, indent=4) 
 
-        i = i + 1
-        pbar.update(i)
+        iteration = iteration + 1
+        pbar.update(iteration)
 
     pbar.finish()       
     
     cur.close()
     conn.close()
 
-def main():
-    # writefile = open('build/nbi_way_matches.csv', 'w')
-    # writer = csv.writer(writefile)
-    # writer.writerow(['state', 'structure_number', 'osm_id', 'lon', 'lat', 'dist', 'maxheight', 'maxweight'])
+def find_intersecting_ways():
+    # @TODO Exclude bridge way from results
+    # @TODO Exclude ways that share orientation but simply touch at edges
 
+    conn = psycopg2.connect('dbname={}'.format(DBNAME))
+    psycopg2.extras.register_hstore(conn)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur2 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur3 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    sql = "SELECT COUNT(*) AS total FROM nbi_bridge_osm_ways"
+    cur.execute(sql)
+    result = cur.fetchone()
+    total = int(result['total'])
+
+    sql = """
+    SELECT 
+        nbi_bridge_id, 
+        ST_AsText(way) AS wkt
+    FROM 
+        nbi_bridge_osm_ways 
+    INNER JOIN 
+        planet_osm_roads 
+            ON nbi_bridge_osm_ways.osm_id=planet_osm_roads.osm_id
+    """
+    cur.execute(sql)
+
+    pbar = ProgressBar(widgets=['Intersections', Percentage(), '  ', ETA(), Bar()], maxval=total).start()                    
+
+    i = 0
+    while True:
+        result = cur.fetchone()
+        if result is None:
+            break
+
+        sql = """
+        SELECT 
+            osm_id 
+        FROM 
+            planet_osm_roads 
+        WHERE 
+            ST_Intersects(way, ST_GeomFromText(%(geom)s, 4326))            
+        """
+        params = {'geom': result['wkt']}
+        cur2.execute(sql, params)
+        while True:
+            result2 = cur2.fetchone()
+            if result2 is None:
+                break
+
+            sql = """
+            INSERT INTO intersecting_ways             
+                (nbi_bridge_id, osm_id) 
+            VALUES 
+                (%(nbi_bridge_id)s, %(osm_id)s)
+            """
+            params = {
+                'nbi_bridge_id': result['nbi_bridge_id'],
+                'osm_id': result2['osm_id']
+            }
+            cur3.execute(sql, params)
+
+        i = i + 1
+        pbar.update(i)
+
+    pbar.finish()
+    conn.commit()
+    cur.close()
+    cur2.close()
+    cur3.close()
+    conn.close()
+
+
+def main():
     for state in (us.states.FL,):
     # for state in us.states.STATES:
             
+        # reset the database
         dropdb()
         createdb()
 
@@ -379,11 +562,10 @@ def main():
 
         match_ways_to_bridges(state)
 
-        makegeojson(state)
-        
+        find_intersecting_ways()
 
-               
-                       
+        geojson(state)
+        
 
 
 if __name__ == '__main__':
