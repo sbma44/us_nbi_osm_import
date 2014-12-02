@@ -63,8 +63,8 @@ nbi:
 	rm nbi/allstatesallrecs13del.txt
 	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python segment.py nbi/nbi.csv && rm nbi/nbi.csv"
 
-process:
-	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python process.py"
+build:
+	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python build_osm_nbi_import.py"
 
 install:
 	sudo apt-get install -y postgis osm2pgsql python3 python-pip postgresql-server-dev-all python3-dev 
