@@ -575,6 +575,45 @@ def geojson(state=us.states.FL):
     conn.close()
 
 
+def unmatched_bridges(state):
+    conn = psycopg2.connect('dbname={}'.format(DBNAME))
+    psycopg2.extras.register_hstore(conn)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    print('# Storing unmatched NBI items')
+
+    with open('build/{}-unmatched.csv'.format(state.abbr), 'w') as outfile:
+        writer = csv.writer(outfile)
+
+        sql = """
+        SELECT 
+            nbi_bridges.structure_number, 
+            ST_AsText(nbi_bridges.location) as wkt
+        FROM 
+            nbi_bridges 
+        LEFT JOIN 
+            nbi_bridge_osm_ways 
+                ON nbi_bridge_osm_ways.nbi_bridge_id=nbi_bridges.nbi_bridge_id 
+        WHERE 
+            nbi_bridge_osm_ways.osm_id IS NULL 
+        AND
+            nbi_bridges.record_type = '1'
+        """
+        cur.execute(sql)
+        while True:
+            result = cur.fetchone()
+            if result is None:
+                break
+
+            writer.writerow([
+                state.fips,
+                result['structure_number'],
+                result['wkt']
+            ])
+
+    cur.close()
+    conn.close()
+
 def main():
     states = us.states
     if len(sys.argv[1]):
@@ -593,13 +632,20 @@ def main():
         if not load_osm(state):
             continue
 
+        # load NBI records for current state
         load_nbi(state)
 
+        # find matching OSM ways
         match_ways_to_bridges()
 
+        # find OSM ways that cross the identified bridge way
         find_intersecting_ways()
 
+        # emit geojson for each bridge & associated ways
         geojson(state)
+
+        # record CSV of states for later tracing
+        unmatched_bridges(state)
         
 
 
