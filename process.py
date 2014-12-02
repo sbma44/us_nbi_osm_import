@@ -11,10 +11,9 @@ import psycopg2, psycopg2.extras
 from progressbar import ProgressBar, Bar, ETA, Percentage, Counter
 
 DBNAME = 'nbi'
+DISTANCE_THRESHOLD = 0.001
 
 def createdb():
-    print('# creating database')    
-
     cmd = 'createdb {}'.format(DBNAME)
     subprocess.call(cmd.split(' '))
 
@@ -26,12 +25,12 @@ def createdb():
     sql = """
     CREATE TABLE nbi_bridges (
         nbi_bridge_id SERIAL PRIMARY KEY,
+        structure_number text,
         state text,
         over_clearance real,
         under_clearance real,
         under_clearance_type text,
-        operating_rating real,
-        structure_number text,
+        operating_rating real,        
         record_type text,
         toll_status text,
         location geometry(point, 4326)
@@ -43,6 +42,7 @@ def createdb():
 
     CREATE TABLE nbi_bridge_osm_ways (
         nbi_bridge_id integer,
+        structure_number text,        
         osm_id integer,
         distance real
     );
@@ -52,7 +52,8 @@ def createdb():
     
     CREATE TABLE intersecting_ways (
         nbi_bridge_id integer,
-        osm_id integer
+        osm_id integer,
+        over_clearance real
     );
 
     CREATE INDEX intersecting_ways_nbi_bridge_id ON intersecting_ways(nbi_bridge_id);
@@ -64,9 +65,17 @@ def createdb():
     cur.close()
     conn.close()
 
+
 def dropdb():
-    print('# dropping database')
     subprocess.call('dropdb --if-exists {}'.format(DBNAME).split(' '))
+
+
+def file_length(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
 
 def load_osm(state):
     # load state OSM
@@ -81,11 +90,6 @@ def load_osm(state):
 
     return True
 
-def file_length(fname):
-    with open(fname) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
 
 def load_nbi(state):
     print('# loading NBI for {}'.format(state.name))
@@ -115,26 +119,12 @@ def load_nbi(state):
             record_type = row[2]
 
             # clearance above bridge way in meters; can be coded 99 if >30m
-            # there are two candidate columns; use the lower of the two
             over_clearance = None
             try:
-                over_clearance_a = row[14] 
-                over_clearance_b = row[60]
+                over_clearance = row[14] 
                 # is value zero, 99.x or >30?
-                if (math.floor(float(over_clearance_a)) in [0, 99]) or (float(over_clearance_a)>=30):
-                    over_clearance_a = None
-                if (math.floor(float(over_clearance_b)) in [0, 99]) or (float(over_clearance_b)>=30):
-                    over_clearance_b = None
-
-                # is only one value set?
-                if over_clearance_a is None and over_clearance_b is not None:
-                    over_clearance = over_clearance_b
-                elif over_clearance_a is not None and over_clearance_b is None:
-                    over_clearance = over_clearance_a
-
-                # if both are valid values, take the shorter clearance to be safe
-                elif over_clearance_a is not None and over_clearance_b is not None:
-                    over_clearance = min(over_clearance_a, over_clearance_b)
+                if (math.floor(float(over_clearance)) in [0, 99]) or (float(over_clearance)>=30):
+                    over_clearance = None
             except:
                 pass
 
@@ -243,7 +233,8 @@ def load_nbi(state):
     conn.close()     
     pbar.finish()
 
-def match_ways_to_bridges(state):
+
+def match_ways_to_bridges():
     conn = psycopg2.connect('dbname={}'.format(DBNAME))
     psycopg2.extras.register_hstore(conn)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -257,7 +248,7 @@ def match_ways_to_bridges(state):
     cur.execute(sql)
     result = cur.fetchone()
 
-    pbar = ProgressBar(widgets=['matching/{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
+    pbar = ProgressBar(widgets=['matching bridges', Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
 
     sql = """
     SELECT osm_id, ST_AsText(way) AS wkt FROM planet_osm_roads WHERE bridge='yes'
@@ -275,21 +266,19 @@ def match_ways_to_bridges(state):
                 ST_Distance(location, ST_GeomFromText(%(wkt)s, 4326)) AS distance
             FROM 
                 nbi_bridges
-            WHERE
-                state = %(state)s
-            AND
+            WHERE                
                 record_type = '1'
             AND
                 ST_DWithin(
                     location,
                     ST_GeomFromText(%(wkt)s, 4326),
-                    0.001
+                    %(dist_threshold)s
                 )
             ORDER BY distance ASC
             """
         params = {
             'wkt': way['wkt'],
-            'state': state.abbr
+            'dist_threshold': DISTANCE_THRESHOLD
         }
         cur2.execute(sql, params)
 
@@ -325,6 +314,116 @@ def match_ways_to_bridges(state):
     cur2.close()
     cur.close()
     conn.close() 
+
+
+def find_intersecting_ways():
+    conn = psycopg2.connect('dbname={}'.format(DBNAME))
+    psycopg2.extras.register_hstore(conn)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur2 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur3 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    sql = "SELECT COUNT(*) AS total FROM nbi_bridge_osm_ways"
+    cur.execute(sql)
+    result = cur.fetchone()
+    total = int(result['total'])
+
+    sql = """
+    SELECT 
+        nbi_bridges.state,
+        nbi_bridges.structure_number,
+        nbi_bridge_osm_ways.nbi_bridge_id, 
+        nbi_bridge_osm_ways.osm_id,
+        ST_AsText(way) AS wkt
+    FROM 
+        nbi_bridge_osm_ways 
+    INNER JOIN 
+        planet_osm_roads 
+            ON nbi_bridge_osm_ways.osm_id=planet_osm_roads.osm_id
+    INNER JOIN
+        nbi_bridges
+            ON nbi_bridges.nbi_bridge_id=nbi_bridge_osm_ways.nbi_bridge_id
+            
+    """
+    cur.execute(sql)
+
+    pbar = ProgressBar(widgets=['Intersections', Percentage(), '  ', ETA(), Bar()], maxval=total).start()                    
+
+    i = 0
+    while True:
+        result = cur.fetchone()
+        if result is None:
+            break
+
+        sql = """
+        SELECT 
+            osm_id,
+            ST_AsText(way) AS wkt
+        FROM 
+            planet_osm_roads 
+        WHERE 
+            ST_Intersects(way, ST_Line_SubString(ST_GeomFromText(%(geom)s, 4326), 0.01, 0.99)) 
+        AND
+            osm_id!=%(osm_id)s           
+        """
+        params = {'geom': result['wkt'], 'osm_id': result['osm_id']}
+        cur2.execute(sql, params)
+        while True:
+            result2 = cur2.fetchone()
+            if result2 is None:
+                break
+
+            # find vertical clearance from nearest record in NBI
+            sql = """
+            SELECT                 
+                over_clearance
+            FROM 
+                nbi_bridges 
+            WHERE 
+                structure_number=%(structure_number)s
+            AND
+                record_type != '1'
+            ORDER BY 
+                ST_Distance(ST_GeomFromText(%(wkt)s, 4326), location) ASC
+            LIMIT 1
+            """            
+            params = {'wkt': result2['wkt'], 'structure_number': result['structure_number']}
+            cur3.execute(sql, params)
+            result3 = cur3.fetchone()
+            if result3 is not None:
+                over_clearance = result3['over_clearance']
+                if over_clearance is not None:
+                    try:
+                        over_clearance = float(over_clearance)
+                        if (over_clearance == 0) or (over_clearance > 30):
+                            over_clearance = None
+                    except:
+                        over_clearance = None
+
+
+            sql = """
+            INSERT INTO intersecting_ways             
+                (nbi_bridge_id, osm_id, over_clearance) 
+            VALUES 
+                (%(nbi_bridge_id)s, %(osm_id)s, %(over_clearance)s)
+            """
+            params = {
+                'nbi_bridge_id': result['nbi_bridge_id'],
+                'osm_id': result2['osm_id'],
+                'over_clearance': over_clearance
+            }
+            cur3.execute(sql, params)
+
+        i = i + 1
+        pbar.update(i)
+
+    pbar.finish()
+    conn.commit()
+    cur.close()
+    cur2.close()
+    cur3.close()
+    conn.close()
+
 
 def geojson(state=us.states.FL):
     if not os.path.exists('build/{}'.format(state.abbr)):
@@ -373,38 +472,7 @@ def geojson(state=us.states.FL):
         if result is None:
             break
 
-        # fetch previously calculated intersecting ways
-        intersecting_ways = []
-        sql = """
-        SELECT 
-            DISTINCT intersecting_ways.osm_id,
-            ST_AsGeoJSON(planet_osm_roads.way) as wayjson,
-            EXIST(planet_osm_roads.tags, 'maxheight') as maxheight_set
-        FROM
-            intersecting_ways
-        INNER JOIN
-            planet_osm_roads
-                ON intersecting_ways.osm_id=planet_osm_roads.osm_id
-        WHERE
-            intersecting_ways.nbi_bridge_id=%(nbi_bridge_id)s
-        """
-        params = {'nbi_bridge_id': result['nbi_bridge_id']}
-        cur2.execute(sql, params)
-        while True:
-            result2 = cur2.fetchone()
-            if result2 is None:
-                break
-            intersecting_ways.append({
-                "type": "Feature",
-                "properties": {
-                    "state": state.abbr,
-                    "osm_id": result2['osm_id'],
-                    "maxheight_set": result2['maxheight_set']
-                },
-                "geometry": json.loads(result2['wayjson'])  
-            })
-
-        # construct output GeoJSON
+        # construct top-level output GeoJSON
         geojson = {
             "type": "FeatureCollection",
             "features": [
@@ -430,6 +498,39 @@ def geojson(state=us.states.FL):
             ]
         }
 
+        # fetch previously calculated intersecting ways
+        intersecting_ways = []
+        sql = """
+        SELECT 
+            DISTINCT intersecting_ways.osm_id,
+            intersecting_ways.over_clearance,
+            ST_AsGeoJSON(planet_osm_roads.way) as wayjson,
+            EXIST(planet_osm_roads.tags, 'maxheight') as maxheight_set
+        FROM
+            intersecting_ways
+        INNER JOIN
+            planet_osm_roads
+                ON intersecting_ways.osm_id=planet_osm_roads.osm_id
+        WHERE
+            intersecting_ways.nbi_bridge_id=%(nbi_bridge_id)s
+        """
+        params = {'nbi_bridge_id': result['nbi_bridge_id']}
+        cur2.execute(sql, params)
+        while True:
+            result2 = cur2.fetchone()
+            if result2 is None:
+                break
+            intersecting_ways.append({
+                "type": "Feature",
+                "properties": {
+                    "state": state.abbr,
+                    "osm_id": result2['osm_id'],
+                    "maxheight_set": result2['maxheight_set'],
+                    "maxheight_nbi": result2['over_clearance']
+                },
+                "geometry": json.loads(result2['wayjson'])  
+            })
+
         # apply operating load, if valid and not set
         if not result['maxweight_set']:
             if result['operating_rating'] is not None:
@@ -450,16 +551,15 @@ def geojson(state=us.states.FL):
         # apply intersecting way vertical clearance to roads underneath
         # if under clearance type is highway or rail and maxheight not set
         if result['under_clearance_type'] in ['H', 'R']:
-            # and if under clearance value is valid
-            if result['under_clearance'] is not None:            
-                if (float(result['under_clearance']) > 0) and (float(result['under_clearance']) < 99):
-                    for (i, way) in enumerate(intersecting_ways):
-                        if not intersecting_ways[i]['properties']['maxheight_set']:
-                            intersecting_ways[i]['properties']['maxheight'] = result['under_clearance']
-        
+            # set the previously-found underclearance value            
+            for (i, way) in enumerate(intersecting_ways):
+                if not intersecting_ways[i]['properties']['maxheight_set']:
+                    intersecting_ways[i]['properties']['maxheight'] = intersecting_ways[i]['properties']['maxheight_nbi']
+
         # remove all maxheight_set attributes
         for (i, way) in enumerate(intersecting_ways):
             del intersecting_ways[i]['properties']['maxheight_set']
+            del intersecting_ways[i]['properties']['maxheight_nbi']
 
         geojson['features'] = geojson['features'] + intersecting_ways
 
@@ -472,78 +572,6 @@ def geojson(state=us.states.FL):
     pbar.finish()       
     
     cur.close()
-    conn.close()
-
-def find_intersecting_ways():
-    conn = psycopg2.connect('dbname={}'.format(DBNAME))
-    psycopg2.extras.register_hstore(conn)
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur2 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur3 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-    sql = "SELECT COUNT(*) AS total FROM nbi_bridge_osm_ways"
-    cur.execute(sql)
-    result = cur.fetchone()
-    total = int(result['total'])
-
-    sql = """
-    SELECT 
-        nbi_bridge_id, 
-        nbi_bridge_osm_ways.osm_id,
-        ST_AsText(way) AS wkt
-    FROM 
-        nbi_bridge_osm_ways 
-    INNER JOIN 
-        planet_osm_roads 
-            ON nbi_bridge_osm_ways.osm_id=planet_osm_roads.osm_id
-    """
-    cur.execute(sql)
-
-    pbar = ProgressBar(widgets=['Intersections', Percentage(), '  ', ETA(), Bar()], maxval=total).start()                    
-
-    i = 0
-    while True:
-        result = cur.fetchone()
-        if result is None:
-            break
-
-        sql = """
-        SELECT 
-            osm_id 
-        FROM 
-            planet_osm_roads 
-        WHERE 
-            ST_Intersects(way, ST_Line_SubString(ST_GeomFromText(%(geom)s, 4326), 0.01, 0.99)) 
-        AND
-            osm_id!=%(osm_id)s           
-        """
-        params = {'geom': result['wkt'], 'osm_id': result['osm_id']}
-        cur2.execute(sql, params)
-        while True:
-            result2 = cur2.fetchone()
-            if result2 is None:
-                break
-
-            sql = """
-            INSERT INTO intersecting_ways             
-                (nbi_bridge_id, osm_id) 
-            VALUES 
-                (%(nbi_bridge_id)s, %(osm_id)s)
-            """
-            params = {
-                'nbi_bridge_id': result['nbi_bridge_id'],
-                'osm_id': result2['osm_id']
-            }
-            cur3.execute(sql, params)
-
-        i = i + 1
-        pbar.update(i)
-
-    pbar.finish()
-    conn.commit()
-    cur.close()
-    cur2.close()
-    cur3.close()
     conn.close()
 
 
@@ -567,7 +595,7 @@ def main():
 
         load_nbi(state)
 
-        match_ways_to_bridges(state)
+        match_ways_to_bridges()
 
         find_intersecting_ways()
 
