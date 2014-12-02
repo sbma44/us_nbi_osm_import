@@ -534,7 +534,7 @@ def geojson(state=us.states.FL):
         # apply operating load, if valid and not set
         if not result['maxweight_set']:
             if result['operating_rating'] is not None:
-                if float(result['operating_rating']) > 0:
+                if (float(result['operating_rating']) > 0) and (float(result['operating_rating']) < 99):
                     geojson['features'][1]['properties']['maxweight'] = result['operating_rating']
 
         # apply toll status, if valid and not set
