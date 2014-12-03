@@ -11,7 +11,17 @@ import psycopg2, psycopg2.extras
 from progressbar import ProgressBar, Bar, ETA, Percentage, Counter
 
 DBNAME = 'nbi'
-DISTANCE_THRESHOLD = 0.001
+DISTANCE_THRESHOLD = 0.0005
+ACCEPTABLE_HIGHWAY_TYPES = [
+    'motorway',
+    'trunk',
+    'primary',
+    'secondary',
+    'tertiary',
+    'unclassified',
+    'residential',
+    'service'
+]
 
 def createdb():
     cmd = 'createdb {}'.format(DBNAME)
@@ -40,8 +50,8 @@ def createdb():
     CREATE INDEX nbi_bridges_state_index ON nbi_bridges(state) WITH (fillfactor=100);
     CREATE INDEX nbi_bridges_location_index ON nbi_bridges USING gist (location) WITH (fillfactor=100);    
 
-    CREATE TABLE nbi_bridge_osm_ways (
-        nbi_bridge_id integer,
+    CREATE TABLE nbi_bridge_osm_ways (        
+        nbi_bridge_id integer
         structure_number text,        
         osm_id integer,
         distance real
@@ -92,15 +102,13 @@ def load_osm(state):
 
 
 def load_nbi(state):
-    print('# loading NBI for {}'.format(state.name))
-
     conn = psycopg2.connect('dbname={}'.format(DBNAME))
     psycopg2.extras.register_hstore(conn)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     state_filename = 'nbi/nbi_{state_abbr}.csv'.format(state_abbr=state.abbr)
     
-    pbar = ProgressBar(widgets=['NBI load/{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=file_length(state_filename)).start()                    
+    pbar = ProgressBar(widgets=['NBI load                ', Percentage(), '  ', ETA(), Bar()], maxval=file_length(state_filename)).start()                    
 
     with open(state_filename, 'r') as csvfile:
         i = 0
@@ -214,7 +222,7 @@ def load_nbi(state):
                 'operating_rating': operating_rating,
                 'structure_number': structure_number,
                 'record_type': record_type.strip(),
-                'toll_status': toll_status.strip(),
+                'toll_status': toll_status,
                 'lat': lat,
                 'lon': lon
             }
@@ -248,10 +256,16 @@ def match_ways_to_bridges():
     cur.execute(sql)
     result = cur.fetchone()
 
-    pbar = ProgressBar(widgets=['matching bridges', Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
+    pbar = ProgressBar(widgets=['NBI->OSM                ', Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
 
     sql = """
-    SELECT osm_id, ST_AsText(way) AS wkt FROM planet_osm_roads WHERE bridge='yes'
+    SELECT 
+        osm_id, 
+        ST_AsText(way) AS wkt 
+    FROM 
+        planet_osm_roads 
+    WHERE 
+        bridge='yes' 
     """
     cur.execute(sql)
     while True:
@@ -347,7 +361,7 @@ def find_intersecting_ways():
     """
     cur.execute(sql)
 
-    pbar = ProgressBar(widgets=['Intersections', Percentage(), '  ', ETA(), Bar()], maxval=total).start()                    
+    pbar = ProgressBar(widgets=['intersections           ', Percentage(), '  ', ETA(), Bar()], maxval=total).start()                    
 
     i = 0
     while True:
@@ -364,9 +378,16 @@ def find_intersecting_ways():
         WHERE 
             ST_Intersects(way, ST_Line_SubString(ST_GeomFromText(%(geom)s, 4326), 0.01, 0.99)) 
         AND
-            osm_id!=%(osm_id)s           
+            osm_id!=%(osm_id)s   
+        AND
+            highway=ANY(%(ACCEPTABLE_HIGHWAY_TYPES)s)        
         """
-        params = {'geom': result['wkt'], 'osm_id': result['osm_id']}
+
+        params = {
+            'geom': result['wkt'], 
+            'osm_id': result['osm_id'],
+            'ACCEPTABLE_HIGHWAY_TYPES': ACCEPTABLE_HIGHWAY_TYPES
+        }
         cur2.execute(sql, params)
         while True:
             result2 = cur2.fetchone()
@@ -390,6 +411,7 @@ def find_intersecting_ways():
             params = {'wkt': result2['wkt'], 'structure_number': result['structure_number']}
             cur3.execute(sql, params)
             result3 = cur3.fetchone()
+            over_clearance = None
             if result3 is not None:
                 over_clearance = result3['over_clearance']
                 if over_clearance is not None:
@@ -438,7 +460,7 @@ def geojson(state=us.states.FL):
     cur.execute(sql)
     result = cur.fetchone()
 
-    pbar = ProgressBar(widgets=['GeoJSON/{state:15}'.format(state=state.name), Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
+    pbar = ProgressBar(widgets=['GeoJSON                 ', Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
 
     # fetch OSM->NBI mappings
     sql = """
@@ -512,9 +534,9 @@ def geojson(state=us.states.FL):
             planet_osm_roads
                 ON intersecting_ways.osm_id=planet_osm_roads.osm_id
         WHERE
-            intersecting_ways.nbi_bridge_id=%(nbi_bridge_id)s
+            intersecting_ways.osm_id=%(osm_id)s
         """
-        params = {'nbi_bridge_id': result['nbi_bridge_id']}
+        params = {'osm_id': result['osm_id']}
         cur2.execute(sql, params)
         while True:
             result2 = cur2.fetchone()
@@ -554,7 +576,8 @@ def geojson(state=us.states.FL):
             # set the previously-found underclearance value            
             for (i, way) in enumerate(intersecting_ways):
                 if not intersecting_ways[i]['properties']['maxheight_set']:
-                    intersecting_ways[i]['properties']['maxheight'] = intersecting_ways[i]['properties']['maxheight_nbi']
+                    if intersecting_ways[i]['properties']['maxheight_nbi'] is not None:
+                        intersecting_ways[i]['properties']['maxheight'] = intersecting_ways[i]['properties']['maxheight_nbi']
 
         # remove all maxheight_set attributes
         for (i, way) in enumerate(intersecting_ways):
@@ -627,6 +650,8 @@ def main():
         # reset the database
         dropdb()
         createdb()
+
+        print('# Processing {}'.format(state.name))
 
         # try to load OSM -- if it fails, skip this state        
         if not load_osm(state):
