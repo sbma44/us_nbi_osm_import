@@ -56,7 +56,7 @@ osm:
 nbi:
 	rm -rf nbi
 	mkdir nbi	
-	curl "https://s3.amazonaws.com/gis-data/us-national-bridge-inventory/2013allstatesallrecsdel.zip" > nbi/nbi.zip
+	curl "http://www.fhwa.dot.gov/bridge/nbi/2013allstatesallrecsdel.zip" > nbi/nbi.zip
 	cd nbi && unzip nbi.zip	&& rm nbi.zip
 	cat nbi/allstatesallrecs13del.txt | iconv -f utf-8 -t utf-8 -c > nbi/nbi.csv
 	rm nbi/allstatesallrecs13del.txt
@@ -66,7 +66,8 @@ build:
 	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python build_osm_nbi_import.py"
 
 install:
-	sudo apt-get install -y postgis osm2pgsql python3 python-pip postgresql-server-dev-all python3-dev 
+	sudo apt-get update -y
+	sudo apt-get install -y postgis osm2pgsql unzip python3 python-pip postgresql-server-dev-all python3-dev 
 	sudo pip install virtualenvwrapper
 	bash -c "virtualenv -p `which python3` .nhtsa_nbi_osm_import && source .nhtsa_nbi_osm_import/bin/activate && pip install -r requirements.txt"
 	bash -c "sudo -u postgres createuser --superuser `whoami`"
