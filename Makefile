@@ -52,12 +52,11 @@ osm:
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/west-virginia-latest.osm.pbf" -O
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/wisconsin-latest.osm.pbf" -O
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/wyoming-latest.osm.pbf" -O
-	touch us_osm.done
 
 nbi:
 	rm -rf nbi
 	mkdir nbi	
-	curl "https://s3.amazonaws.com/gis-data/nbi/2013allstatesallrecsdel.zip" > nbi/nbi.zip
+	curl "https://s3.amazonaws.com/gis-data/us-national-bridge-inventory/2013allstatesallrecsdel.zip" > nbi/nbi.zip
 	cd nbi && unzip nbi.zip	&& rm nbi.zip
 	cat nbi/allstatesallrecs13del.txt | iconv -f utf-8 -t utf-8 -c > nbi/nbi.csv
 	rm nbi/allstatesallrecs13del.txt
