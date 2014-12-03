@@ -1,4 +1,12 @@
-osm:
+install:
+	sudo apt-get update -y
+	sudo apt-get install -y postgis osm2pgsql unzip python3 python-pip postgresql-server-dev-all python3-dev 
+	sudo pip install virtualenvwrapper
+	bash -c "virtualenv -p `which python3` .nhtsa_nbi_osm_import && source .nhtsa_nbi_osm_import/bin/activate && pip install -r requirements.txt"
+	bash -c "sudo -u postgres createuser --superuser `whoami`"
+	mkdir build
+
+load-osm:
 	rm -rf us_osm
 	mkdir us_osm
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/alabama-latest.osm.pbf" -O
@@ -53,7 +61,7 @@ osm:
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/wisconsin-latest.osm.pbf" -O
 	cd us_osm && curl "http://download.geofabrik.de/north-america/us/wyoming-latest.osm.pbf" -O
 
-nbi:
+load-nbi:
 	rm -rf nbi
 	mkdir nbi	
 	curl "http://www.fhwa.dot.gov/bridge/nbi/2013allstatesallrecsdel.zip" > nbi/nbi.zip
@@ -62,19 +70,12 @@ nbi:
 	rm nbi/allstatesallrecs13del.txt
 	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python segment.py nbi/nbi.csv && rm nbi/nbi.csv"
 
-build:
+analyze: nbi us_osm
 	bash -c "source .nhtsa_nbi_osm_import/bin/activate && python build_osm_nbi_import.py"
-
-install:
-	sudo apt-get update -y
-	sudo apt-get install -y postgis osm2pgsql unzip python3 python-pip postgresql-server-dev-all python3-dev 
-	sudo pip install virtualenvwrapper
-	bash -c "virtualenv -p `which python3` .nhtsa_nbi_osm_import && source .nhtsa_nbi_osm_import/bin/activate && pip install -r requirements.txt"
-	bash -c "sudo -u postgres createuser --superuser `whoami`"
-	mkdir build
 
 clean:
 	rm -rf nbi
 	rm -rf us_osm
+	rm -rf build
 
 
