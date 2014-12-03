@@ -10,7 +10,7 @@ import us
 import psycopg2, psycopg2.extras
 from progressbar import ProgressBar, Bar, ETA, Percentage, Counter
 
-DBNAME = 'nbi'
+DBNAME = 'us_osm_nbi_import'
 DISTANCE_THRESHOLD = 0.0005
 ACCEPTABLE_HIGHWAY_TYPES = [
     'motorway',
