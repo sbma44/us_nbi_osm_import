@@ -62,11 +62,13 @@ def createdb():
     
     CREATE TABLE intersecting_ways (
         nbi_bridge_id integer,
+        nbi_bridge_osm_way_id integer,
         osm_id integer,
         over_clearance real
     );
-
+    
     CREATE INDEX intersecting_ways_nbi_bridge_id ON intersecting_ways(nbi_bridge_id);
+    CREATE INDEX intersecting_ways_nbi_bridge_osm_way_id ON intersecting_ways(nbi_bridge_osm_way_id);
     CREATE INDEX intersecting_ways_osm_id ON intersecting_ways(osm_id);
     """
     cur.execute(sql)
@@ -252,7 +254,7 @@ def match_ways_to_bridges():
     matched_bridges = 0
     processed_records = 0
 
-    sql = "SELECT COUNT(*) AS total FROM planet_osm_roads WHERE bridge='yes'"
+    sql = "SELECT COUNT(*) AS total FROM planet_osm_line WHERE bridge='yes'"
     cur.execute(sql)
     result = cur.fetchone()
 
@@ -263,7 +265,7 @@ def match_ways_to_bridges():
         osm_id, 
         ST_AsText(way) AS wkt 
     FROM 
-        planet_osm_roads 
+        planet_osm_line 
     WHERE 
         bridge='yes' 
     """
@@ -352,8 +354,8 @@ def find_intersecting_ways():
     FROM 
         nbi_bridge_osm_ways 
     INNER JOIN 
-        planet_osm_roads 
-            ON nbi_bridge_osm_ways.osm_id=planet_osm_roads.osm_id
+        planet_osm_line 
+            ON nbi_bridge_osm_ways.osm_id=planet_osm_line.osm_id
     INNER JOIN
         nbi_bridges
             ON nbi_bridges.nbi_bridge_id=nbi_bridge_osm_ways.nbi_bridge_id
@@ -374,7 +376,7 @@ def find_intersecting_ways():
             osm_id,
             ST_AsText(way) AS wkt
         FROM 
-            planet_osm_roads 
+            planet_osm_line 
         WHERE 
             ST_Intersects(way, ST_Line_SubString(ST_GeomFromText(%(geom)s, 4326), 0.01, 0.99)) 
         AND
@@ -425,12 +427,13 @@ def find_intersecting_ways():
 
             sql = """
             INSERT INTO intersecting_ways             
-                (nbi_bridge_id, osm_id, over_clearance) 
+                (nbi_bridge_id, nbi_bridge_osm_way_id, osm_id, over_clearance) 
             VALUES 
-                (%(nbi_bridge_id)s, %(osm_id)s, %(over_clearance)s)
+                (%(nbi_bridge_id)s, %(nbi_bridge_osm_way_id)s, %(osm_id)s, %(over_clearance)s)
             """
             params = {
                 'nbi_bridge_id': result['nbi_bridge_id'],
+                'nbi_bridge_osm_way_id': result['osm_id'],
                 'osm_id': result2['osm_id'],
                 'over_clearance': over_clearance
             }
@@ -470,19 +473,19 @@ def geojson(state=us.states.FL):
                 nbi_bridges.under_clearance_type,
                 nbi_bridges.toll_status,
                 nbi_bridges.operating_rating,
-                nbi_bridge_osm_ways.osm_id AS osm_id,
+                nbi_bridge_osm_ways.osm_id AS osm_id,                
                 nbi_bridges.nbi_bridge_id AS nbi_bridge_id,
                 nbi_bridges.structure_number AS nbi_structure_number,
-                EXIST(planet_osm_roads.tags, 'maxweight') as maxweight_set,
-                EXIST(planet_osm_roads.tags, 'maxheight') as maxheight_set,
-                EXIST(planet_osm_roads.tags, 'toll') as toll_set,
+                EXIST(planet_osm_line.tags, 'maxweight') as maxweight_set,
+                EXIST(planet_osm_line.tags, 'maxheight') as maxheight_set,
+                EXIST(planet_osm_line.tags, 'toll') as toll_set,
                 ST_AsGeoJSON(location) AS ptjson, 
                 ST_AsGeoJSON(way) AS wayjson            
             FROM
                 nbi_bridge_osm_ways
             INNER JOIN
-                planet_osm_roads 
-                    ON planet_osm_roads.osm_id=nbi_bridge_osm_ways.osm_id
+                planet_osm_line 
+                    ON planet_osm_line.osm_id=nbi_bridge_osm_ways.osm_id
             INNER JOIN
                 nbi_bridges
                     ON nbi_bridges.nbi_bridge_id=nbi_bridge_osm_ways.nbi_bridge_id
@@ -526,17 +529,17 @@ def geojson(state=us.states.FL):
         SELECT 
             DISTINCT intersecting_ways.osm_id,
             intersecting_ways.over_clearance,
-            ST_AsGeoJSON(planet_osm_roads.way) as wayjson,
-            EXIST(planet_osm_roads.tags, 'maxheight') as maxheight_set
+            ST_AsGeoJSON(planet_osm_line.way) as wayjson,
+            EXIST(planet_osm_line.tags, 'maxheight') as maxheight_set
         FROM
             intersecting_ways
         INNER JOIN
-            planet_osm_roads
-                ON intersecting_ways.osm_id=planet_osm_roads.osm_id
+            planet_osm_line
+                ON intersecting_ways.osm_id=planet_osm_line.osm_id
         WHERE
-            intersecting_ways.osm_id=%(osm_id)s
+            intersecting_ways.nbi_bridge_osm_way_id=%(nbi_bridge_osm_way_id)s
         """
-        params = {'osm_id': result['osm_id']}
+        params = {'nbi_bridge_osm_way_id': result['osm_id']}
         cur2.execute(sql, params)
         while True:
             result2 = cur2.fetchone()
