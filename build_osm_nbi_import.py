@@ -51,7 +51,7 @@ def createdb():
     CREATE INDEX nbi_bridges_location_index ON nbi_bridges USING gist (location) WITH (fillfactor=100);    
 
     CREATE TABLE nbi_bridge_osm_ways (        
-        nbi_bridge_id integer
+        nbi_bridge_id integer,
         structure_number text,        
         osm_id integer,
         distance real
@@ -380,7 +380,7 @@ def find_intersecting_ways():
         AND
             osm_id!=%(osm_id)s   
         AND
-            highway=ANY(%(ACCEPTABLE_HIGHWAY_TYPES)s)        
+            highway IS NOT NULL
         """
 
         params = {
