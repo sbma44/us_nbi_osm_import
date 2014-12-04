@@ -12,6 +12,7 @@ from progressbar import ProgressBar, Bar, ETA, Percentage, Counter
 
 DBNAME = 'us_osm_nbi_import'
 DISTANCE_THRESHOLD = 0.0005
+MAX_ALLOWABLE_INTERSECTIONS_FOR_UNDERPASSES = 3
 ACCEPTABLE_HIGHWAY_TYPES = [
     'motorway',
     'trunk',
@@ -450,14 +451,18 @@ def find_intersecting_ways():
     conn.close()
 
 
-def geojson(state=us.states.FL):
+def geojson(state):
     if not os.path.exists('build/{}'.format(state.abbr)):
         os.mkdir('build/{}'.format(state.abbr))
+
+    too_long_file = open('build/{}-way-too-long.csv'.format(state.abbr), 'w')
+    too_long = csv.writer(too_long_file)
 
     conn = psycopg2.connect('dbname={}'.format(DBNAME))
     psycopg2.extras.register_hstore(conn)
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur2 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur3 = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     sql = "SELECT COUNT(*) AS total FROM nbi_bridge_osm_ways"
     cur.execute(sql)
@@ -530,6 +535,8 @@ def geojson(state=us.states.FL):
             DISTINCT intersecting_ways.osm_id,
             intersecting_ways.over_clearance,
             ST_AsGeoJSON(planet_osm_line.way) as wayjson,
+            ST_AsText(planet_osm_line.way) as waywkt,
+            ST_Length(planet_osm_line.way) as length,
             EXIST(planet_osm_line.tags, 'maxheight') as maxheight_set
         FROM
             intersecting_ways
@@ -550,8 +557,10 @@ def geojson(state=us.states.FL):
                 "properties": {
                     "state": state.abbr,
                     "osm_id": result2['osm_id'],
-                    "maxheight_set": result2['maxheight_set'],
-                    "maxheight_nbi": result2['over_clearance']
+                    "length": result2['length'],
+                    "_maxheight_isset": result2['maxheight_set'],
+                    "_maxheight": result2['over_clearance'],                    
+                    "_waywkt": result2['waywkt']
                 },
                 "geometry": json.loads(result2['wayjson'])  
             })
@@ -575,17 +584,45 @@ def geojson(state=us.states.FL):
 
         # apply intersecting way vertical clearance to roads underneath
         # if under clearance type is highway or rail and maxheight not set
+        ways_to_remove = []
         if result['under_clearance_type'] in ['H', 'R']:
             # set the previously-found underclearance value            
             for (i, way) in enumerate(intersecting_ways):
-                if not intersecting_ways[i]['properties']['maxheight_set']:
-                    if intersecting_ways[i]['properties']['maxheight_nbi'] is not None:
-                        intersecting_ways[i]['properties']['maxheight'] = intersecting_ways[i]['properties']['maxheight_nbi']
+                if not intersecting_ways[i]['properties']['_maxheight_isset']:
+                    if intersecting_ways[i]['properties']['_maxheight'] is not None:
+                        # check the number of intersections against this way. 
+                        # if <=3 (bridge + end A + end B) it's okay to apply maxheight. if more, we could
+                        # screw up routing; put it in the "way too long" to-fix pile
+                        sql = """
+                        SELECT 
+                            COUNT(*) AS total
+                        FROM 
+                            planet_osm_line 
+                        WHERE 
+                            ST_Intersects(way, ST_GeomFromText(%(waywkt)s, 4326)) 
+                        AND 
+                            osm_id!=%(osm_id)s"""
+                        params = {'waywkt': intersecting_ways[i]['properties']['_waywkt'], 'osm_id': intersecting_ways[i]['properties']['osm_id']}
+                        cur3.execute(sql, params)
+                        result3 = cur3.fetchone()
+                        if int(result3['total']) > MAX_ALLOWABLE_INTERSECTIONS_FOR_UNDERPASSES:
+                            too_long.writerow([intersecting_ways[i]['properties']['osm_id'], intersecting_ways[i]['properties']['_waywkt']])
+                            ways_to_remove.append(i)                            
+                        else:
+                            intersecting_ways[i]['properties']['maxheight'] = intersecting_ways[i]['properties']['_maxheight']
 
-        # remove all maxheight_set attributes
+        # pare down ways that we have identified as having too many intersections/being too long
+        for way_index in reversed(ways_to_remove):
+            intersecting_ways.pop(way_index)
+
+        # remove all properties prefixed with _        
         for (i, way) in enumerate(intersecting_ways):
-            del intersecting_ways[i]['properties']['maxheight_set']
-            del intersecting_ways[i]['properties']['maxheight_nbi']
+            properties_to_delete = []
+            for key in intersecting_ways[i]['properties']:
+                if key[0] == '_':
+                    properties_to_delete.append(key)
+            for p in properties_to_delete:
+                del intersecting_ways[i]['properties'][p]
 
         geojson['features'] = geojson['features'] + intersecting_ways
 
@@ -597,8 +634,12 @@ def geojson(state=us.states.FL):
 
     pbar.finish()       
     
+    cur3.close()
+    cur2.close()
     cur.close()
     conn.close()
+
+    too_long_file.close()
 
 
 def unmatched_bridges(state):
