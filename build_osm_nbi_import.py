@@ -110,7 +110,7 @@ def load_nbi(state):
 
     state_filename = 'nbi/nbi_{state_abbr}.csv'.format(state_abbr=state.abbr)
     
-    pbar = ProgressBar(widgets=['NBI load                ', Percentage(), '  ', ETA(), Bar()], maxval=file_length(state_filename)).start()                    
+    pbar = ProgressBar(widgets=['NBI load                ', Percentage(), '  ', ETA(), Bar()], maxval=max(1, file_length(state_filename))).start()                    
 
     with open(state_filename, 'r') as csvfile:
         i = 0
@@ -258,7 +258,7 @@ def match_ways_to_bridges():
     cur.execute(sql)
     result = cur.fetchone()
 
-    pbar = ProgressBar(widgets=['NBI->OSM                ', Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
+    pbar = ProgressBar(widgets=['NBI->OSM                ', Percentage(), '  ', ETA(), Bar()], maxval=max(1, int(result['total']))).start()                    
 
     sql = """
     SELECT 
@@ -363,7 +363,7 @@ def find_intersecting_ways():
     """
     cur.execute(sql)
 
-    pbar = ProgressBar(widgets=['intersections           ', Percentage(), '  ', ETA(), Bar()], maxval=total).start()                    
+    pbar = ProgressBar(widgets=['intersections           ', Percentage(), '  ', ETA(), Bar()], maxval=max(1, total)).start()                    
 
     i = 0
     while True:
@@ -463,7 +463,7 @@ def geojson(state=us.states.FL):
     cur.execute(sql)
     result = cur.fetchone()
 
-    pbar = ProgressBar(widgets=['GeoJSON                 ', Percentage(), '  ', ETA(), Bar()], maxval=int(result['total'])).start()                    
+    pbar = ProgressBar(widgets=['GeoJSON                 ', Percentage(), '  ', ETA(), Bar()], maxval=max(1, int(result['total']))).start()                    
 
     # fetch OSM->NBI mappings
     sql = """
