@@ -77,20 +77,14 @@ The significance of errors is also minimized by the tendency of adjacent bridge 
 
 > http://bl.ocks.org/d/b91cd6d30b6556c08620
 
-The highlighted bridge way is not closely matched to the NBI point. This may be because of imprecision in the NBI dataset or because the NBI treats as a single unit a structure that is composed of multiple ways in OSM. Whatever the case, the impact of the underclearance and operating load classifications are likely to be minimal: the structures over Halsey Ave will be built to support a uniform clearance, and 
+The highlighted bridge way is not closely matched to the NBI point. This may be because of imprecision in the NBI dataset or because the NBI treats as a single unit a structure that is composed of multiple ways in OSM. Whatever the case, the impact of the underclearance and operating load classifications are likely to be minimal: the structures over Halsey Ave will be built to support a uniform clearance.
 
-One failure mode for the import is matching an OSM way to an imprecisely-positioned NBI bridge. This occurs 
-
-
-## Known Bugs
-
-build/MD/70761185.json 
+One failure mode for the import is matching an OSM way to an imprecisely-positioned NBI bridge. NBI data has varying levels of precision. Again, structures that are close together generally support similar classes of traffic. But we could exclude NBI bridges that are within close range of each other and have substantially varying characteristics.
 
 
 ## Contact
 
 tlee (at) mapbox (dot) com
-
 
 ## License
 
