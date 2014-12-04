@@ -1,0 +1,43 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "coordinates": [
+                    -76.9607,
+                    39.03085
+                ],
+                "type": "Point"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "DAPAMCADE000002",
+                "nbi_bridge_id": 5283
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -76.9607837,
+                        39.0306847
+                    ],
+                    [
+                        -76.9606299,
+                        39.0308394
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "DAPAMCADE000002",
+                "nbi_bridge_id": 5283,
+                "maxweight": 45.0,
+                "osm_id": 230607389
+            }
+        }
+    ],
+    "type": "FeatureCollection"
+}

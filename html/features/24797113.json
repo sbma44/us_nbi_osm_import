@@ -1,0 +1,117 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "coordinates": [
+                    -76.635,
+                    39.27
+                ],
+                "type": "Point"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "200000BC5103010",
+                "nbi_bridge_id": 3187
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -76.634364,
+                        39.2699086
+                    ],
+                    [
+                        -76.6345746,
+                        39.2699272
+                    ],
+                    [
+                        -76.6357118,
+                        39.2700736
+                    ],
+                    [
+                        -76.6379085,
+                        39.2703405
+                    ],
+                    [
+                        -76.6391683,
+                        39.2704689
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "200000BC5103010",
+                "nbi_bridge_id": 3187,
+                "maxweight": 58.5,
+                "osm_id": 24797113
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -76.6360598,
+                        39.2706445
+                    ],
+                    [
+                        -76.6353703,
+                        39.2701075
+                    ],
+                    [
+                        -76.6347701,
+                        39.2696715
+                    ],
+                    [
+                        -76.6340426,
+                        39.2692998
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "length": 0.00243274704236131,
+                "state": "MD",
+                "osm_id": 130772927
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -76.6360598,
+                        39.2706445
+                    ],
+                    [
+                        -76.6356493,
+                        39.270213
+                    ],
+                    [
+                        -76.6355523,
+                        39.2700834
+                    ],
+                    [
+                        -76.6354516,
+                        39.2699205
+                    ],
+                    [
+                        -76.6353621,
+                        39.2696531
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "length": 0.00123094178880302,
+                "state": "MD",
+                "osm_id": 5998460
+            }
+        }
+    ],
+    "type": "FeatureCollection"
+}

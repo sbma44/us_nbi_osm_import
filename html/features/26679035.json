@@ -1,0 +1,99 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "coordinates": [
+                    -77.1416666666667,
+                    39.0266666666667
+                ],
+                "type": "Point"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "200000M-0247010",
+                "nbi_bridge_id": 4345
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -77.1412194,
+                        39.0264173
+                    ],
+                    [
+                        -77.1416529,
+                        39.0264078
+                    ],
+                    [
+                        -77.1417497,
+                        39.0264055
+                    ],
+                    [
+                        -77.1418259,
+                        39.0264046
+                    ],
+                    [
+                        -77.1424876,
+                        39.0263996
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "200000M-0247010",
+                "nbi_bridge_id": 4345,
+                "maxweight": 67.5,
+                "osm_id": 26679035
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -77.1417274,
+                        39.028002
+                    ],
+                    [
+                        -77.1417497,
+                        39.0264055
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "length": 0.00159665573621684,
+                "state": "MD",
+                "osm_id": 26679138,
+                "maxheight": 5.25
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -77.1416529,
+                        39.0264078
+                    ],
+                    [
+                        -77.1416416,
+                        39.0279953
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "length": 0.00158754021681281,
+                "state": "MD",
+                "osm_id": 26679128,
+                "maxheight": 5.25
+            }
+        }
+    ],
+    "type": "FeatureCollection"
+}

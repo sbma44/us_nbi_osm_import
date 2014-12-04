@@ -1,0 +1,72 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "coordinates": [
+                    -77.0133333333333,
+                    38.795
+                ],
+                "type": "Point"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "100000160172010",
+                "nbi_bridge_id": 2016
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -77.0146132,
+                        38.7950258
+                    ],
+                    [
+                        -77.0142834,
+                        38.7950185
+                    ],
+                    [
+                        -77.0139225,
+                        38.7950247
+                    ],
+                    [
+                        -77.0134437,
+                        38.7950571
+                    ],
+                    [
+                        -77.0132144,
+                        38.7950906
+                    ],
+                    [
+                        -77.0129275,
+                        38.7951523
+                    ],
+                    [
+                        -77.0125734,
+                        38.7952515
+                    ],
+                    [
+                        -77.0122864,
+                        38.7953718
+                    ],
+                    [
+                        -77.0119176,
+                        38.7955651
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "100000160172010",
+                "nbi_bridge_id": 2016,
+                "osm_id": 50608641,
+                "maxweight": 40.5,
+                "maxheight": 5.51
+            }
+        }
+    ],
+    "type": "FeatureCollection"
+}

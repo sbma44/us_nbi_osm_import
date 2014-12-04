@@ -1,0 +1,43 @@
+{
+    "features": [
+        {
+            "geometry": {
+                "coordinates": [
+                    -77.015,
+                    38.7933333333333
+                ],
+                "type": "Point"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "100000160274010",
+                "nbi_bridge_id": 2119
+            }
+        },
+        {
+            "geometry": {
+                "coordinates": [
+                    [
+                        -77.0153562,
+                        38.7931732
+                    ],
+                    [
+                        -77.0151284,
+                        38.7928765
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "type": "Feature",
+            "properties": {
+                "state": "MD",
+                "nbi_structure_number": "100000160274010",
+                "nbi_bridge_id": 2119,
+                "maxweight": 87.3,
+                "osm_id": 50608663
+            }
+        }
+    ],
+    "type": "FeatureCollection"
+}
